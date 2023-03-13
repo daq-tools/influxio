@@ -157,6 +157,11 @@ Import
         https://github.com/influxdata/influxdb2-sample-data/raw/master/air-sensor-data/air-sensor-data.lp \
         http://example:token@localhost:8086/testdrive/demo
 
+    # From test data to API.
+    influxio copy \
+        testdata://dateindex \
+        http://example:token@localhost:8086/testdrive/demo
+
 OCI
 ---
 

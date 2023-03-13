@@ -75,6 +75,7 @@ dependencies = [
   "influxdb-client[ciso]",
   "line-protocol-parser<2",
   "pandas<1.6",
+  "yarl<2",
 ]
 [project.optional-dependencies]
 develop = [
