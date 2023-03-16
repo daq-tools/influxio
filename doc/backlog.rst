@@ -26,6 +26,8 @@ Iteration 2
 - [o] Line protocol builder
   https://github.com/functionoffunction/influx-line
 - [o] cloud-to-cloud copy
+- [o] influxio list testdata://
+- [o] "SQLAlchemy » Dialects built-in" is broken
 
 - https://docs.influxdata.com/influxdb/v2.6/migrate-data/
 - https://docs.influxdata.com/influxdb/v2.6/reference/cli/influx/write/

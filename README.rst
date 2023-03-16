@@ -31,13 +31,13 @@ Synopsis
 
     # Export from data directory to line protocol format.
     influxio copy \
-        file:///path/to/data/engine?org=example&bucket=testdrive&measurement=demo \
-        file://export.lp
+        "file:///path/to/data/engine?org=example&bucket=testdrive&measurement=demo" \
+        "file://export.lp"
 
     # Export from API to database.
     influxio copy \
-        http://example:token@localhost:8086/testdrive/demo \
-        sqlite://export.sqlite
+        "http://example:token@localhost:8086/testdrive/demo" \
+        "sqlite://export.sqlite"
 
 
 **********
@@ -51,8 +51,8 @@ just use the OCI image on Podman or Docker.
 
     docker run --rm --network=host ghcr.io/daq-tools/influxio \
         influxio copy \
-        http://example:token@localhost:8086/testdrive/demo \
-        crate://crate@localhost:4200/testdrive
+        "http://example:token@localhost:8086/testdrive/demo" \
+        "crate://crate@localhost:4200/testdrive"
 
 
 *****
@@ -81,7 +81,7 @@ For properly running some of the example invocations outlined below, you will
 need an InfluxDB and a CrateDB server. The easiest way to spin up those
 instances is to use Podman or Docker.
 
-::
+.. code-block:: sh
 
     docker run --rm -it --publish=8086:8086 \
         --env=DOCKER_INFLUXDB_INIT_MODE=setup \
@@ -90,17 +90,16 @@ instances is to use Podman or Docker.
         --env=DOCKER_INFLUXDB_INIT_ORG=example \
         --env=DOCKER_INFLUXDB_INIT_BUCKET=default \
         --env=DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=token \
-        --volume=$PWD/var/lib/influxdb2:/var/lib/influxdb2 \
+        --volume="$PWD/var/lib/influxdb2:/var/lib/influxdb2" \
         influxdb:2.6
 
 - https://github.com/docker-library/docs/blob/master/influxdb/README.md
 
-::
+.. code-block:: sh
 
     docker run --rm -it --publish=4200:4200 --publish=5432:5432 \
-        --volume=$PWD/var/lib/cratedb:/data \
-        crate:5.2.2 -Cdiscovery.type=single-node
-
+        --volume="$PWD/var/lib/cratedb:/data" \
+        crate:5.2 -Cdiscovery.type=single-node
 
 - https://github.com/docker-library/docs/blob/master/crate/README.md
 
@@ -117,6 +116,32 @@ Help
     influxio info
     influxio copy --help
 
+Import
+------
+
+.. code-block:: sh
+
+    # From test data to API.
+    # Choose one of dummy, mixed, dateindex, wide.
+    influxio copy \
+        "testdata://dateindex/" \
+        "http://example:token@localhost:8086/testdrive/demo"
+
+    # With selected amount of rows.
+    influxio copy \
+        "testdata://dateindex/?rows=42" \
+        "http://example:token@localhost:8086/testdrive/demo"
+
+    # With selected amount of rows and columns (only supported by certain test data sources).
+    influxio copy \
+        "testdata://wide/?rows=42&columns=42" \
+        "http://example:token@localhost:8086/testdrive/demo"
+
+    # From line protocol file to API.
+    influxio copy \
+        "https://github.com/influxdata/influxdb2-sample-data/raw/master/air-sensor-data/air-sensor-data.lp" \
+        "http://example:token@localhost:8086/testdrive/demo"
+
 Export
 ------
 
@@ -124,43 +149,28 @@ Export
 
     # From API to database file.
     influxio copy \
-        http://example:token@localhost:8086/testdrive/demo \
-        sqlite://export.sqlite
+        "http://example:token@localhost:8086/testdrive/demo" \
+        "sqlite://export.sqlite"
 
     # From API to database server.
     influxio copy \
-        http://example:token@localhost:8086/testdrive/demo \
-        crate://crate@localhost:4200/testdrive
+        "http://example:token@localhost:8086/testdrive/demo" \
+        "crate://crate@localhost:4200/testdrive"
 
     # From API to line protocol file.
     influxio copy \
-        http://example:token@localhost:8086/testdrive/demo \
-        file://export.lp
+        "http://example:token@localhost:8086/testdrive/demo" \
+        "file://export.lp"
 
     # From data directory to line protocol file.
     influxio copy \
-        file:///path/to/data/engine?org=example&bucket=testdrive&measurement=demo \
-        file://export.lp
+        "file:///path/to/data/engine?org=example&bucket=testdrive&measurement=demo" \
+        "file://export.lp"
 
     # From line protocol file to database.
     influxio copy \
-        file://export.lp \
-        sqlite://export.sqlite
-
-Import
-------
-
-.. code-block:: sh
-
-    # From line protocol file to API.
-    influxio copy \
-        https://github.com/influxdata/influxdb2-sample-data/raw/master/air-sensor-data/air-sensor-data.lp \
-        http://example:token@localhost:8086/testdrive/demo
-
-    # From test data to API.
-    influxio copy \
-        testdata://dateindex \
-        http://example:token@localhost:8086/testdrive/demo
+        "file://export.lp" \
+        "sqlite://export.sqlite"
 
 OCI
 ---
@@ -172,8 +182,8 @@ run them on Podman or Docker, invoke:
 
     docker run --rm --network=host ghcr.io/daq-tools/influxio \
         influxio copy \
-        http://example:token@localhost:8086/testdrive/demo \
-        stdout://export.lp
+        "http://example:token@localhost:8086/testdrive/demo" \
+        "stdout://export.lp"
 
 If you want to work with files on your filesystem, you will need to either
 mount the working directory into the container using the ``--volume`` option,
@@ -182,11 +192,11 @@ or use the ``--interactive`` option to consume STDIN, like:
 .. code-block:: sh
 
     docker run --rm --volume=$(pwd):/data ghcr.io/daq-tools/influxio \
-        influxio copy file:///data/export.lp sqlite:///data/export.sqlite
+        influxio copy "file:///data/export.lp" "sqlite:///data/export.sqlite"
 
     cat export.lp | \
     docker run --rm --interactive --network=host ghcr.io/daq-tools/influxio \
-        influxio copy stdin://?format=lp crate://crate@localhost:4200/testdrive
+        influxio copy "stdin://?format=lp" "crate://crate@localhost:4200/testdrive"
 
 In order to always run the latest ``nightly`` development version, and to use a
 shortcut for that, this section outlines how to use an alias for ``influxio``,

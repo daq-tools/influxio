@@ -13,6 +13,17 @@ def copy(source: str, target: str):
     Copy/transfer data from/to InfluxDB API / InfluxDB line protocol / RDBMS.
 
     RDBMS is any SQLAlchemy-supported database.
+
+    `source` and `target` are resource identifiers in URL format.
+
+    When the InfluxDB API is addressed, the schema is:
+    http://example:token@localhost:8086/testdrive/demo
+
+    This means:
+    - Organization: example
+    - Authentication: token
+    - Bucket: testdrive
+    - Measurement: demo
     """
     source = URL(source)
     target = URL(target)
