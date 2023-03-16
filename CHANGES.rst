@@ -7,6 +7,7 @@ in progress
 ===========
 - Feature: Copy test data to InfluxDB
 - Tests: Speed up test data import by specifying row count
+- Tests: Add test for ``influxio info``
 
 
 2023-xx-xx 0.1.0
