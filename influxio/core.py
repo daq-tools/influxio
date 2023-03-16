@@ -20,13 +20,12 @@ def copy(source: str, target: str):
     logger.info(f"Copying from {source} to {target}")
 
     if source.scheme == "testdata":
-        dff = DataFrameFactory()
+        dff = DataFrameFactory(**source.query)
         df = dff.make(source.host)
     else:
         raise NotImplementedError(f"Data source not implemented: {source}")
 
     if target.scheme == "http":
-        # http://example:token@localhost:8086/testdrive/demo
         url = f"{target.scheme}://{target.host}:{target.port}"
         token = target.password
         org = target.user

@@ -11,13 +11,16 @@ def test_testdata(caplog):
 
     result = runner.invoke(
         cli,
-        args="copy testdata://dateindex http://example:token@localhost:8086/testdrive/demo",
+        args="copy testdata://dateindex/?rows=42 http://example:token@localhost:8086/testdrive/demo",
         catch_exceptions=False,
     )
 
     assert result.exit_code == 0
 
-    assert "Copying from testdata://dateindex to http://example:token@localhost:8086/testdrive/demo" in caplog.messages
+    assert (
+        "Copying from testdata://dateindex/?rows=42 to http://example:token@localhost:8086/testdrive/demo"
+        in caplog.messages
+    )
     assert "Creating data frame" in caplog.messages
     assert "Importing data frame to InfluxDB. bucket=testdrive, measurement=demo" in caplog.messages
     assert "Ready." in caplog.messages

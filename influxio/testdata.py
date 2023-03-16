@@ -17,12 +17,13 @@ default_rows_count = 150_000
 
 class DataFrameFactory:
     def __init__(self, rows: int = default_rows_count, columns: int = 99):
-        self.rows = rows
-        self.columns = columns
+        self.rows = int(rows)
+        self.columns = int(columns)
 
-    def make(self, which: str) -> pd.DataFrame:
+    def make(self, which: str, **options) -> pd.DataFrame:
         fun: t.Callable = getattr(self, f"make_{which}")
         sig = signature(fun)
+
         kwargs = OrderedDict()
         if "rows" in sig.parameters:
             kwargs["rows"] = self.rows
