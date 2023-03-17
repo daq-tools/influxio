@@ -37,11 +37,7 @@ def copy(source: str, target: str):
         raise NotImplementedError(f"Data source not implemented: {source}")
 
     if target.scheme == "http":
-        url = f"{target.scheme}://{target.host}:{target.port}"
-        token = target.password
-        org = target.user
-        bucket, measurement = target.path.strip("/").split("/")
-        api = InfluxAPI(url=url, token=token, org=org, bucket=bucket, measurement=measurement)
+        api = InfluxAPI.from_url(target)
         api.write_df(df)
     else:
         raise NotImplementedError(f"Data sink not implemented: {target}")

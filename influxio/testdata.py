@@ -62,7 +62,7 @@ class DataFrameFactory:
             "time": np.arange(0, rows, 1, dtype=int),
             "tag": np.random.choice(["tag_a", "tag_b", "test_c"], size=(rows,)),
         }
-        for n in range(2, columns):
+        for n in range(2, columns + 1):
             col_data[f"col{n}"] = random.randint(1, 10)
 
         data_frame = pd.DataFrame(data=col_data).set_index("time")

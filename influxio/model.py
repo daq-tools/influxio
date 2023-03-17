@@ -7,6 +7,7 @@ import influxdb_client.rest
 import pandas as pd
 from dask.diagnostics import ProgressBar
 from influxdb_client import InfluxDBClient
+from yarl import URL
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,25 @@ class InfluxAPI:
         self.org = org
         self.bucket = bucket
         self.measurement = measurement
+
+    @classmethod
+    def from_url(cls, url: t.Union[URL, str]) -> "InfluxAPI":
+        if isinstance(url, str):
+            url: URL = URL(url)
+        token = url.password
+        org = url.user
+        bucket, measurement = url.path.strip("/").split("/")
+        bare_url = f"{url.scheme}://{url.host}:{url.port}"
+        return cls(url=bare_url, token=token, org=org, bucket=bucket, measurement=measurement)
+
+    def delete(self):
+        with InfluxDBClient(url=self.url, org=self.org, token=self.token) as client:
+            return client.delete_api().delete(
+                start="1677-09-21T00:12:43.145224194Z",
+                stop="2262-04-11T23:47:16.854775806Z",
+                predicate=f'_measurement="{self.measurement}"',
+                bucket=self.bucket,
+            )
 
     def read_df(self):
         """ """
