@@ -1,7 +1,12 @@
 import json
 import logging
+import shlex
+import subprocess
 import sys
 import typing as t
+from textwrap import dedent
+
+logger = logging.getLogger(__name__)
 
 
 def setup_logging(level=logging.INFO):
@@ -23,3 +28,25 @@ def jd(data: t.Any):
     Pretty-print JSON with indentation.
     """
     print(json.dumps(data, indent=2))  # noqa: T201
+
+
+def run_command(command: str):
+    """
+    https://stackoverflow.com/a/48813330
+    """
+    # return subprocess.check_output(shlex.split(command.strip()), stderr=subprocess.STDOUT)
+    # print("command:", command)
+    # sdcdc
+    command = dedent(command).strip()
+    cmd = shlex.split(command)
+
+    # timeout=3,
+    try:
+        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True)
+    except subprocess.CalledProcessError as exc:
+        logger.error(f"Command failed (exit code {exc.returncode}). The command was:\n{command}")
+        logger.error(exc.output)
+        raise
+    else:
+        if output:
+            logger.info(f"Command output:\n{output}")

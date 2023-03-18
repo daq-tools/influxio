@@ -139,6 +139,11 @@ Import
 
     # From line protocol file to API.
     influxio copy \
+        "file://tests/testdata/basic.lp" \
+        "http://example:token@localhost:8086/testdrive/demo"
+
+    # From line protocol file to API.
+    influxio copy \
         "https://github.com/influxdata/influxdb2-sample-data/raw/master/air-sensor-data/air-sensor-data.lp" \
         "http://example:token@localhost:8086/testdrive/demo"
 

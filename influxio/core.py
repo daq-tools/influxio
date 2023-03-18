@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 from yarl import URL
 
@@ -30,14 +31,20 @@ def copy(source: str, target: str):
 
     logger.info(f"Copying from {source} to {target}")
 
+    if target.scheme == "http":
+        sink = InfluxAPI.from_url(target)
+    else:
+        raise NotImplementedError(f"Data sink not implemented: {target}")
+
     if source.scheme == "testdata":
         dff = DataFrameFactory(**source.query)
         df = dff.make(source.host)
+        sink.write_df(df)
+
+    elif source.scheme == "file":
+        path = Path(source.host).joinpath(Path(source.path).relative_to("/"))
+        # TODO: Determine file type by suffix.
+        # TODO: Make `precision` configurable.
+        sink.write_lineprotocol(path)
     else:
         raise NotImplementedError(f"Data source not implemented: {source}")
-
-    if target.scheme == "http":
-        api = InfluxAPI.from_url(target)
-        api.write_df(df)
-    else:
-        raise NotImplementedError(f"Data sink not implemented: {target}")

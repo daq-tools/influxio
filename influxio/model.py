@@ -1,6 +1,8 @@
+import json
 import logging
-import shlex
-import subprocess
+import sys
+import typing as t
+from pathlib import Path
 
 import dask.dataframe as dd
 import influxdb_client.rest
@@ -8,6 +10,8 @@ import pandas as pd
 from dask.diagnostics import ProgressBar
 from influxdb_client import InfluxDBClient
 from yarl import URL
+
+from influxio.util.common import run_command
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +23,7 @@ class InfluxAPI:
         self.org = org
         self.bucket = bucket
         self.measurement = measurement
+        self.client = InfluxDBClient(url=self.url, org=self.org, token=self.token)
 
     @classmethod
     def from_url(cls, url: t.Union[URL, str]) -> "InfluxAPI":
@@ -31,62 +36,107 @@ class InfluxAPI:
         return cls(url=bare_url, token=token, org=org, bucket=bucket, measurement=measurement)
 
     def delete(self):
-        with InfluxDBClient(url=self.url, org=self.org, token=self.token) as client:
-            return client.delete_api().delete(
+        try:
+            return self.client.delete_api().delete(
                 start="1677-09-21T00:12:43.145224194Z",
                 stop="2262-04-11T23:47:16.854775806Z",
                 predicate=f'_measurement="{self.measurement}"',
                 bucket=self.bucket,
             )
+        except influxdb_client.rest.ApiException as ex:
+            if ex.status != 404:
+                raise
 
     def read_df(self):
         """ """
         query = f"""
         from(bucket:"{self.bucket}")
-            |> range(start: -30y, stop: now())
+            |> range(start: 0, stop: now())
             |> filter(fn: (r) => r._measurement == "{self.measurement}")
             |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         """
         #
-        with InfluxDBClient(url=self.url, org=self.org, token=self.token) as client:
-            for df in client.query_api().query_data_frame_stream(query=query):
-                df = df.drop(["result", "table", "_start", "_stop"], axis=1)
-                df = df.rename(columns={"_time": "time", "_measurement": "measurement"})
-                yield df
+        for df in self.client.query_api().query_data_frame_stream(query=query):
+            df = df.drop(["result", "table", "_start", "_stop"], axis=1)
+            df = df.rename(columns={"_time": "time", "_measurement": "measurement"})
+            yield df
+
+    def read_records(self) -> t.Dict[str, t.Any]:
+        query = f"""
+            from(bucket: "{self.bucket}")
+                |> range(start: 0)
+                |> filter(fn: (r) => r._measurement == "{self.measurement}")
+            """
+        result = self.client.query_api().query(query=query)
+        return json.loads(result.to_json())
+
+    def ensure_bucket(self):
+        try:
+            self.client.buckets_api().create_bucket(bucket_name=self.bucket)
+        except influxdb_client.rest.ApiException as ex:
+            if ex.status == 422:
+                pass
+            else:
+                raise
+        logger.info(f"Bucket id is {self.get_bucket_id()}")
 
     def write_df(self, df: pd.DataFrame):
         """
         Use batching API to import data frame into InfluxDB.
 
         https://github.com/influxdata/influxdb-client-python/blob/master/examples/ingest_large_dataframe.py
+
+        TODO: Add precision.
         """
         logger.info(f"Importing data frame to InfluxDB. bucket={self.bucket}, measurement={self.measurement}")
-        with InfluxDBClient(url=self.url, org=self.org, token=self.token) as client:
-            try:
-                client.buckets_api().create_bucket(bucket_name=self.bucket)
-            except influxdb_client.rest.ApiException as ex:
-                if ex.status == 422:
-                    pass
-                else:
-                    raise
-            logger.info(f"Bucket id is {self.get_bucket_id()}")
-            with client.write_api() as write_api:
-                write_api.write(
-                    bucket=self.bucket,
-                    record=df,
-                    data_frame_measurement_name=self.measurement,
-                    # data_frame_tag_columns=['tag'],  # noqa: ERA001
-                )
+        self.ensure_bucket()
+        with self.client.write_api() as write_api:
+            write_api.write(
+                bucket=self.bucket,
+                record=df,
+                data_frame_measurement_name=self.measurement,
+                # TODO: Add more parameters.
+                # write_precision=WritePrecision.MS,
+                # data_frame_tag_columns=['tag'],  # noqa: ERA001
+            )
+
+    def write_lineprotocol(self, path: Path, precision: str = "ns"):
+        """
+        Precision of the timestamps of the lines (default: ns) [$INFLUX_PRECISION]
+
+        The default precision for timestamps is in nanoseconds. If the precision of
+        the timestamps is anything other than nanoseconds (ns), you must specify the
+        precision in your write request. InfluxDB accepts the following precisions:
+
+            ns - Nanoseconds
+            us - Microseconds
+            ms - Milliseconds
+            s - Seconds
+
+        -- https://docs.influxdata.com/influxdb/cloud/write-data/developer-tools/line-protocol/
+        """
+        logger.info(f"Importing line protocol format to InfluxDB. bucket={self.bucket}, measurement={self.measurement}")
+        self.ensure_bucket()
+        command = f"""
+        influx write \
+            --token="{self.token}" \
+            --org="{self.org}" \
+            --bucket="{self.bucket}" \
+            --precision={precision} \
+            --format=lp \
+            --file="{path}"
+        """
+        # print("command:", command)
+        run_command(command)
 
     def get_bucket_id(self):
         """
         Resolve bucket name to bucket id.
         """
-        with InfluxDBClient(url=self.url, org=self.org, token=self.token) as client:
-            bucket: influxdb_client.Bucket = client.buckets_api().find_bucket_by_name(bucket_name=self.bucket)
-            if bucket is None:
-                raise KeyError(f"Bucket not found: {self.bucket}")
-            return bucket.id
+        bucket: influxdb_client.Bucket = self.client.buckets_api().find_bucket_by_name(bucket_name=self.bucket)
+        if bucket is None:
+            raise KeyError(f"Bucket not found: {self.bucket}")
+        return bucket.id
 
     def to_lineprotocol(self, engine_path: str, output_path: str):
         """
@@ -94,7 +144,7 @@ class InfluxAPI:
 
         :return:
         """
-        logger.info("Exporting data to InfluxDB lineprotocol format (ILP)")
+        logger.info("Exporting data to InfluxDB line protocol format (ILP)")
         bucket_id = self.get_bucket_id()
         command = f"""
         influxd inspect export-lp \
@@ -104,7 +154,7 @@ class InfluxAPI:
             --output-path '{output_path}' \
             --compress
         """
-        subprocess.check_output(shlex.split(command.strip()), stderr=subprocess.STDOUT)
+        run_command(command)
 
     def df_to_sql(self, df: pd.DataFrame):
         """
