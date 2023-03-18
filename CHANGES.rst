@@ -9,6 +9,7 @@ in progress
 - Tests: Speed up test data import by specifying row count
 - Tests: Add test for ``influxio info``
 - Feature: Add reading line protocol format from file
+- Feature: Add reading line protocol format from URL
 
 
 2023-xx-xx 0.1.0

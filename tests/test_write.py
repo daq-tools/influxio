@@ -47,11 +47,34 @@ def test_write_testdata(spec: DatasetItemSpec, caplog):
     assert len(records) == spec.length
 
 
-def test_write_lineprotocol(line_protocol_file_basic, caplog):
+def test_write_lineprotocol_file(line_protocol_file_basic, caplog):
     """
     CLI test: Import line protocol data to InfluxDB.
     """
     source_url = f"file://{line_protocol_file_basic}"
+    target_url = "http://example:token@localhost:8086/testdrive/basic"
+
+    # Make sure database is purged.
+    api = InfluxAPI.from_url(target_url)
+    api.delete()
+
+    # Transfer data.
+    influxio.core.copy(source_url, target_url)
+
+    # Verify execution.
+    assert f"Copying from {source_url} to {target_url}" in caplog.messages
+    assert "Importing line protocol format to InfluxDB. bucket=testdrive, measurement=basic" in caplog.messages
+
+    # Verify number of records in database.
+    records = api.read_records()
+    assert len(records) == 2
+
+
+def test_write_lineprotocol_url(line_protocol_url_basic, caplog):
+    """
+    CLI test: Import line protocol data to InfluxDB.
+    """
+    source_url = line_protocol_url_basic
     target_url = "http://example:token@localhost:8086/testdrive/basic"
 
     # Make sure database is purged.

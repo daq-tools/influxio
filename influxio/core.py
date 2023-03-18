@@ -31,7 +31,7 @@ def copy(source: str, target: str):
 
     logger.info(f"Copying from {source} to {target}")
 
-    if target.scheme == "http":
+    if target.scheme.startswith("http"):
         sink = InfluxAPI.from_url(target)
     else:
         raise NotImplementedError(f"Data sink not implemented: {target}")
@@ -46,5 +46,9 @@ def copy(source: str, target: str):
         # TODO: Determine file type by suffix.
         # TODO: Make `precision` configurable.
         sink.write_lineprotocol(path)
+
+    elif source.scheme.startswith("http"):
+        sink.write_lineprotocol(str(source))
+
     else:
         raise NotImplementedError(f"Data source not implemented: {source}")

@@ -100,7 +100,7 @@ class InfluxAPI:
                 # data_frame_tag_columns=['tag'],  # noqa: ERA001
             )
 
-    def write_lineprotocol(self, path: Path, precision: str = "ns"):
+    def write_lineprotocol(self, source: t.Union[Path, str], precision: str = "ns"):
         """
         Precision of the timestamps of the lines (default: ns) [$INFLUX_PRECISION]
 
@@ -115,8 +115,20 @@ class InfluxAPI:
 
         -- https://docs.influxdata.com/influxdb/cloud/write-data/developer-tools/line-protocol/
         """
+        is_url = False
+        try:
+            URL(source)
+            is_url = True
+        except:
+            pass
+
         logger.info(f"Importing line protocol format to InfluxDB. bucket={self.bucket}, measurement={self.measurement}")
         self.ensure_bucket()
+
+        if is_url:
+            source_option = f'--url="{str(source)}"'
+        else:
+            source_option = f'--file="{str(source)}"'
         command = f"""
         influx write \
             --token="{self.token}" \
@@ -124,7 +136,7 @@ class InfluxAPI:
             --bucket="{self.bucket}" \
             --precision={precision} \
             --format=lp \
-            --file="{path}"
+            {source_option}
         """
         # print("command:", command)
         run_command(command)
