@@ -1,6 +1,5 @@
 import json
 import logging
-import sys
 import typing as t
 from pathlib import Path
 
@@ -96,7 +95,7 @@ class InfluxAPI:
                 record=df,
                 data_frame_measurement_name=self.measurement,
                 # TODO: Add more parameters.
-                # write_precision=WritePrecision.MS,
+                # write_precision=WritePrecision.MS,  # noqa: ERA001
                 # data_frame_tag_columns=['tag'],  # noqa: ERA001
             )
 
@@ -119,7 +118,7 @@ class InfluxAPI:
         try:
             URL(source)
             is_url = True
-        except:
+        except Exception:  # noqa: S110
             pass
 
         logger.info(f"Importing line protocol format to InfluxDB. bucket={self.bucket}, measurement={self.measurement}")
@@ -138,7 +137,7 @@ class InfluxAPI:
             --format=lp \
             {source_option}
         """
-        # print("command:", command)
+        # print("command:", command)  # noqa: ERA001
         run_command(command)
 
     def get_bucket_id(self):

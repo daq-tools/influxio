@@ -34,13 +34,9 @@ def run_command(command: str):
     """
     https://stackoverflow.com/a/48813330
     """
-    # return subprocess.check_output(shlex.split(command.strip()), stderr=subprocess.STDOUT)
-    # print("command:", command)
-    # sdcdc
     command = dedent(command).strip()
     cmd = shlex.split(command)
 
-    # timeout=3,
     try:
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True)
     except subprocess.CalledProcessError as exc:
