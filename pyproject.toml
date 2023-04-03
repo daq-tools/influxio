@@ -72,7 +72,7 @@ dependencies = [
   "dask",
   "influxdb-client[ciso]",
   "line-protocol-parser<2",
-  "pandas<1.6",
+  "pandas<2.1",
   "yarl<2",
 ]
 [project.optional-dependencies]
