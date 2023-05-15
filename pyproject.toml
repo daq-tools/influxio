@@ -80,7 +80,7 @@ dependencies = [
 [project.optional-dependencies]
 develop = [
   "black<23",
-  "mypy==1.1.1",
+  "mypy==1.3.0",
   "poethepoet<0.19",
   "pyproject-fmt<0.10",
   "ruff==0.0.254",
