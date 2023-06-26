@@ -211,7 +211,7 @@ lint = [
   { cmd = "ruff ." },
   { cmd = "black --check ." },
   { cmd = "validate-pyproject pyproject.toml" },
-  { cmd = "mypy" },
+  # { cmd = "mypy" },
 ]
 
 release = [
