@@ -51,6 +51,13 @@ jobs:
     - name: Acquire sources
       uses: actions/checkout@v3
 
+    # Install InfluxDB CLI tools.
+    - name: Setup InfluxDB CLI
+      uses: influxdata/influxdb-action@v3
+      with:
+        influxdb_version: 2.6.1
+        influxdb_start: false
+
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
