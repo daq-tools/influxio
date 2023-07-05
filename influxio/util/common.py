@@ -38,7 +38,7 @@ def run_command(command: str):
     cmd = shlex.split(command)
 
     try:
-        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True)
+        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True)  # noqa: S603
     except subprocess.CalledProcessError as exc:
         logger.error(f"Command failed (exit code {exc.returncode}). The command was:\n{command}")
         logger.error(exc.output)
