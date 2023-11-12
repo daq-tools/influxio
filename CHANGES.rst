@@ -6,6 +6,10 @@ influxio changelog
 in progress
 ===========
 
+2023-11-12 v0.1.1
+=================
+- Fix project metadata
+
 2023-11-12 v0.1.0
 =================
 - Feature: Copy test data to InfluxDB
