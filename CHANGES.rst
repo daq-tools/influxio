@@ -5,6 +5,7 @@ influxio changelog
 
 in progress
 ===========
+- Add support for Python 3.12
 
 2023-11-12 v0.1.1
 =================
