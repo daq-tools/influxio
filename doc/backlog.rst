@@ -21,7 +21,7 @@ Iteration +2
 - [o] Add Docker Compose file for auxiliary services
 - [o] Check if using a CrateDB schema works well
 - [o] Refinements
-- [o] Verify documentation
+- [o] Verify documentation. ``influxio.cli.help_copy``
 - [o] Refactor general purpose code to `pueblo` package
 
 
@@ -41,6 +41,7 @@ Iteration +3
 - [o] influxio list testdata://
 - [o] "SQLAlchemy » Dialects built-in" is broken
 - [o] ``DBURI = "crate+psycopg://localhost:4200"``
+- [o] Use Podman instead of Docker
 
 References
 ==========
