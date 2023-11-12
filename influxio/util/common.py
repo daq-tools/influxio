@@ -36,7 +36,7 @@ def run_command(command: str):
     """
     command = dedent(command).strip()
     cmd = shlex.split(command)
-
+    logger.info(f"Running command: {command}")
     try:
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True)  # noqa: S603
     except subprocess.CalledProcessError as exc:
