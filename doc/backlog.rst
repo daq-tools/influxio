@@ -3,20 +3,32 @@ influxio backlog
 ################
 
 
-***********
-Iteration 1
-***********
-
+************
+Iteration +1
+************
 - [x] Add project boilerplate
-- [o] Add initial working version
-- [o] Refinements
+- [x] Make it work
+- [x] Export to SQLite, PostgreSQL, and CrateDB
+- [x] Fix documentation about crate:// target
 - [o] Release 0.1.0
 
 
-***********
-Iteration 2
-***********
+************
+Iteration +2
+************
+- [o] Tests using ``assert_dataframe_equal``?
+- [o] Fix ``crate.client.sqlalchemy.dialect.DateTime`` re. ``TimezoneUnawareException``
+- [o] Add Docker Compose file for auxiliary services
+- [o] Check if using a CrateDB schema works well
+- [o] Refinements
+- [o] Verify documentation
+- [o] Refactor general purpose code to `pueblo` package
 
+
+************
+Iteration +3
+************
+- [o] Unlock more parameters in InfluxDbAdapter.write_df
 - [o] Format: Compressed line protocol
 - [o] Format: Annotated CSV
   - https://docs.influxdata.com/influxdb/v2.6/reference/syntax/annotated-csv/
@@ -28,7 +40,10 @@ Iteration 2
 - [o] cloud-to-cloud copy
 - [o] influxio list testdata://
 - [o] "SQLAlchemy » Dialects built-in" is broken
+- [o] ``DBURI = "crate+psycopg://localhost:4200"``
 
+References
+==========
 - https://docs.influxdata.com/influxdb/v2.6/migrate-data/
 - https://docs.influxdata.com/influxdb/v2.6/reference/cli/influx/write/
 - https://docs.influxdata.com/influxdb/v2.6/reference/cli/influx/backup/

@@ -37,7 +37,7 @@ Synopsis
     # Export from API to database.
     influxio copy \
         "http://example:token@localhost:8086/testdrive/demo" \
-        "sqlite://export.sqlite"
+        "sqlite://export.sqlite?table=demo"
 
 
 **********
@@ -52,7 +52,7 @@ just use the OCI image on Podman or Docker.
     docker run --rm --network=host ghcr.io/daq-tools/influxio \
         influxio copy \
         "http://example:token@localhost:8086/testdrive/demo" \
-        "crate://crate@localhost:4200/testdrive"
+        "crate://crate@localhost:4200/testdrive/demo"
 
 
 *****
@@ -91,7 +91,7 @@ instances is to use Podman or Docker.
         --env=DOCKER_INFLUXDB_INIT_BUCKET=default \
         --env=DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=token \
         --volume="$PWD/var/lib/influxdb2:/var/lib/influxdb2" \
-        influxdb:2.6
+        influxdb:2.7
 
 - https://github.com/docker-library/docs/blob/master/influxdb/README.md
 
@@ -99,7 +99,7 @@ instances is to use Podman or Docker.
 
     docker run --rm -it --publish=4200:4200 --publish=5432:5432 \
         --volume="$PWD/var/lib/cratedb:/data" \
-        crate:5.2 -Cdiscovery.type=single-node
+        crate:5.5 -Cdiscovery.type=single-node
 
 - https://github.com/docker-library/docs/blob/master/crate/README.md
 
@@ -155,12 +155,12 @@ Export
     # From API to database file.
     influxio copy \
         "http://example:token@localhost:8086/testdrive/demo" \
-        "sqlite://export.sqlite"
+        "sqlite://export.sqlite?table=demo"
 
     # From API to database server.
     influxio copy \
         "http://example:token@localhost:8086/testdrive/demo" \
-        "crate://crate@localhost:4200/testdrive"
+        "crate://crate@localhost:4200/testdrive?table=demo"
 
     # From API to line protocol file.
     influxio copy \
@@ -175,7 +175,7 @@ Export
     # From line protocol file to database.
     influxio copy \
         "file://export.lp" \
-        "sqlite://export.sqlite"
+        "sqlite://export.sqlite?table=export"
 
 OCI
 ---
@@ -197,11 +197,11 @@ or use the ``--interactive`` option to consume STDIN, like:
 .. code-block:: sh
 
     docker run --rm --volume=$(pwd):/data ghcr.io/daq-tools/influxio \
-        influxio copy "file:///data/export.lp" "sqlite:///data/export.sqlite"
+        influxio copy "file:///data/export.lp" "sqlite:///data/export.sqlite?table=export"
 
     cat export.lp | \
     docker run --rm --interactive --network=host ghcr.io/daq-tools/influxio \
-        influxio copy "stdin://?format=lp" "crate://crate@localhost:4200/testdrive"
+        influxio copy "stdin://?format=lp" "crate://crate@localhost:4200/testdrive/export"
 
 In order to always run the latest ``nightly`` development version, and to use a
 shortcut for that, this section outlines how to use an alias for ``influxio``,
@@ -213,7 +213,7 @@ keystrokes on subsequent invocations.
     docker pull ghcr.io/daq-tools/influxio:nightly
     alias influxio="docker run --rm --interactive ghcr.io/daq-tools/influxio:nightly influxio"
     SOURCE=https://github.com/daq-tools/influxio/raw/main/tests/testdata/basic.lp
-    TARGET=crate://crate@localhost:4200/testdrive
+    TARGET=crate://crate@localhost:4200/testdrive/basic
 
     influxio copy "${SOURCE}" "${TARGET}"
 

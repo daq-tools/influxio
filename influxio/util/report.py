@@ -77,12 +77,12 @@ class AboutReport:
         print()
 
         # SQLAlchemy
-        from importlib.metadata import entry_points
-
         import sqlalchemy.dialects
 
+        from influxio.util.compat import entry_points
+
         subsection("SQLAlchemy")
-        print(bullet_item(sqlalchemy.dialects.registry.impls.keys(), label="Dialects built-in"))
+        print(bullet_item(list(sqlalchemy.dialects.__all__), label="Dialects built-in"))
         eps = entry_points(group="sqlalchemy.dialects")
         dialects = [dialect.name for dialect in eps]
         print(bullet_item(dialects, label="Dialects 3rd-party"))

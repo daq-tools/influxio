@@ -15,12 +15,18 @@ description = "Import and export data into/from InfluxDB"
 readme = "README.rst"
 keywords = [
   "export",
+  "ilp",
   "import",
+  "influx",
   "influxdb",
   "line-protocol",
   "lineprotocol",
+  "rdbms",
+  "sql",
+  "sqlalchemy",
   "timeseries",
   "timeseries-data",
+  "transfer",
 ]
 license = { text = "MIT" }
 authors = [
@@ -46,8 +52,12 @@ classifiers = [
   "Operating System :: POSIX :: Linux",
   "Operating System :: Unix",
   "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Topic :: Communications",
   "Topic :: Database",
   "Topic :: Documentation",
@@ -69,10 +79,14 @@ dependencies = [
   "click<9",
   "colorama<1",
   "crate[sqlalchemy]",
+  "cratedb-toolkit",
   "dask",
-  "influxdb-client[ciso]",
+  'importlib-metadata; python_version <= "3.9"',
+  "influxdb-client[ciso]<2",
   "line-protocol-parser<2",
   "pandas<2.2",
+  "psycopg2-binary<3",
+  "SQLAlchemy-Utils<0.42",
   "yarl<2",
 ]
 [project.optional-dependencies]
@@ -86,7 +100,6 @@ develop = [
 ]
 release = [
   "build<2",
-  'minibump<1; python_version >= "3.10"',
   "twine<5",
 ]
 test = [
@@ -134,6 +147,7 @@ testpaths = [
 ]
 xfail_strict = true
 markers = [
+  "examples",
   "slow",
 ]
 
@@ -213,10 +227,8 @@ lint = [
 ]
 
 release = [
-  { cmd = "minibump bump --relax minor" },
   { cmd = "python -m build" },
   { cmd = "twine upload dist/*" },
 ]
 
-test = { cmd = "pytest -m 'not roadrunner'" }
-test-roadrunner = { cmd = "pytest -m 'roadrunner'" }
+test = { cmd = "pytest" }

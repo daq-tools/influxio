@@ -3,7 +3,7 @@ import dataclasses
 import pytest
 
 import influxio.core
-from influxio.model import InfluxAPI
+from influxio.model import InfluxDbAdapter
 
 
 @dataclasses.dataclass
@@ -22,7 +22,7 @@ class DatasetItemSpec:
     ],
     ids=lambda x: x.name,
 )
-def test_write_testdata(spec: DatasetItemSpec, caplog):
+def test_import_testdata(spec: DatasetItemSpec, caplog):
     """
     CLI test: Import test data to InfluxDB.
     """
@@ -31,8 +31,8 @@ def test_write_testdata(spec: DatasetItemSpec, caplog):
     target_url = f"http://example:token@localhost:8086/testdrive/testdata-{dataset}"
 
     # Make sure database is purged.
-    api = InfluxAPI.from_url(target_url)
-    api.delete()
+    api = InfluxDbAdapter.from_url(target_url)
+    api.delete_measurement()
 
     # Transfer data.
     influxio.core.copy(source_url, target_url)
@@ -47,7 +47,7 @@ def test_write_testdata(spec: DatasetItemSpec, caplog):
     assert len(records) == spec.length
 
 
-def test_write_lineprotocol_file(line_protocol_file_basic, caplog):
+def test_import_lineprotocol_file(line_protocol_file_basic, caplog):
     """
     CLI test: Import line protocol data to InfluxDB.
     """
@@ -55,8 +55,8 @@ def test_write_lineprotocol_file(line_protocol_file_basic, caplog):
     target_url = "http://example:token@localhost:8086/testdrive/basic"
 
     # Make sure database is purged.
-    api = InfluxAPI.from_url(target_url)
-    api.delete()
+    api = InfluxDbAdapter.from_url(target_url)
+    api.delete_measurement()
 
     # Transfer data.
     influxio.core.copy(source_url, target_url)
@@ -70,7 +70,7 @@ def test_write_lineprotocol_file(line_protocol_file_basic, caplog):
     assert len(records) == 2
 
 
-def test_write_lineprotocol_url(line_protocol_url_basic, caplog):
+def test_import_lineprotocol_url(line_protocol_url_basic, caplog):
     """
     CLI test: Import line protocol data to InfluxDB.
     """
@@ -78,8 +78,8 @@ def test_write_lineprotocol_url(line_protocol_url_basic, caplog):
     target_url = "http://example:token@localhost:8086/testdrive/basic"
 
     # Make sure database is purged.
-    api = InfluxAPI.from_url(target_url)
-    api.delete()
+    api = InfluxDbAdapter.from_url(target_url)
+    api.delete_measurement()
 
     # Transfer data.
     influxio.core.copy(source_url, target_url)

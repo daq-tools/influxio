@@ -3,38 +3,45 @@ import logging
 import typing as t
 from pathlib import Path
 
-import dask.dataframe as dd
 import influxdb_client.rest
 import pandas as pd
-from dask.diagnostics import ProgressBar
+import psycopg2
+import sqlalchemy
+import sqlalchemy as sa
 from influxdb_client import InfluxDBClient
+from sqlalchemy_utils import create_database
 from yarl import URL
 
+from influxio.io import dataframe_to_sql
 from influxio.util.common import run_command
 
 logger = logging.getLogger(__name__)
 
 
-class InfluxAPI:
-    def __init__(self, url: str, token: str, org: str, bucket: str, measurement: str):
+class InfluxDbAdapter:
+    def __init__(self, url: str, token: str, org: str, bucket: str, measurement: str, debug: bool = False):
         self.url = url
         self.token = token
         self.org = org
         self.bucket = bucket
         self.measurement = measurement
-        self.client = InfluxDBClient(url=self.url, org=self.org, token=self.token)
+        self.debug = debug
+        self.client = InfluxDBClient(url=self.url, org=self.org, token=self.token, debug=self.debug)
 
     @classmethod
-    def from_url(cls, url: t.Union[URL, str]) -> "InfluxAPI":
+    def from_url(cls, url: t.Union[URL, str], **kwargs) -> "InfluxDbAdapter":
         if isinstance(url, str):
             url: URL = URL(url)
         token = url.password
         org = url.user
         bucket, measurement = url.path.strip("/").split("/")
         bare_url = f"{url.scheme}://{url.host}:{url.port}"
-        return cls(url=bare_url, token=token, org=org, bucket=bucket, measurement=measurement)
+        return cls(url=bare_url, token=token, org=org, bucket=bucket, measurement=measurement, **kwargs)
 
-    def delete(self):
+    def delete_measurement(self):
+        """
+        https://docs.influxdata.com/influxdb/cloud/write-data/delete-data/
+        """
         try:
             return self.client.delete_api().delete(
                 start="1677-09-21T00:12:43.145224194Z",
@@ -79,6 +86,25 @@ class InfluxAPI:
                 raise
         logger.info(f"Bucket id is {self.get_bucket_id()}")
 
+    def delete_bucket(self, missing_ok: bool = True):
+        """
+        https://docs.influxdata.com/influxdb/v2/admin/buckets/delete-bucket/
+        """
+        try:
+            bucket_id = self.get_bucket_id()
+        except KeyError:
+            if missing_ok:
+                return
+            else:
+                raise
+        try:
+            self.client.buckets_api().delete_bucket(bucket_id)
+        except influxdb_client.rest.ApiException as ex:
+            if ex.status == 404 and missing_ok:
+                pass
+            else:
+                raise
+
     def write_df(self, df: pd.DataFrame):
         """
         Use batching API to import data frame into InfluxDB.
@@ -99,8 +125,10 @@ class InfluxAPI:
                 # data_frame_tag_columns=['tag'],  # noqa: ERA001
             )
 
-    def write_lineprotocol(self, source: t.Union[Path, str], precision: str = "ns"):
+    def from_lineprotocol(self, source: t.Union[Path, str], precision: str = "ns"):
         """
+        Import data from file in lineprotocol format (ILP) by invoking `influx write`.
+
         Precision of the timestamps of the lines (default: ns) [$INFLUX_PRECISION]
 
         The default precision for timestamps is in nanoseconds. If the precision of
@@ -130,6 +158,7 @@ class InfluxAPI:
             source_option = f'--file="{str(source)}"'
         command = f"""
         influx write \
+            --host="{self.url}" \
             --token="{self.token}" \
             --org="{self.org}" \
             --bucket="{self.bucket}" \
@@ -149,17 +178,26 @@ class InfluxAPI:
             raise KeyError(f"Bucket not found: {self.bucket}")
         return bucket.id
 
-    def to_lineprotocol(self, engine_path: str, output_path: str):
+    def to_lineprotocol(self, engine_path: str, output_path: t.Union[str, Path]):
         """
-        https://docs.influxdata.com/influxdb/v2.6/migrate-data/migrate-oss/
+        Export data into lineprotocol format (ILP) by invoking `influxd inspect export-lp`.
 
-        :return:
+        TODO: Using a hyphen `-` for `--output-path` works well now, so export can also go to stdout.
+        TODO: By default, it will *append* to the .lp file.
+              Make it configurable to "replace" data.
+        TODO: Make it configurable to use compression, or not.
+        TODO: Propagate `--start` and `--end` parameters.
+        TODO: Capture stderr messages, and forward user admonition.
+              »detected deletes in WAL file, some deleted data may be brought back by replaying this export«
+              -- https://github.com/influxdata/influxdb/issues/24456
+
+        https://docs.influxdata.com/influxdb/v2.6/migrate-data/migrate-oss/
         """
         logger.info("Exporting data to InfluxDB line protocol format (ILP)")
         bucket_id = self.get_bucket_id()
         command = f"""
         influxd inspect export-lp \
-            --engine-path {engine_path} \
+            --engine-path '{engine_path}' \
             --bucket-id '{bucket_id}' \
             --measurement '{self.measurement}' \
             --output-path '{output_path}' \
@@ -167,33 +205,103 @@ class InfluxAPI:
         """
         run_command(command)
 
-    def df_to_sql(self, df: pd.DataFrame):
-        """
-        https://stackoverflow.com/questions/62404502/using-dasks-new-to-sql-for-improved-efficiency-memory-speed-or-alternative-to
-        """
-        logger.info("Importing data frame to CrateDB")
-        pbar = ProgressBar()
-        pbar.register()
 
-        # TODO: Make variable configurable.
-        #       Default to nproc / 2?
-        ddf = dd.from_pandas(df, npartitions=4)
+def decode_database_table(url: URL):
+    """
+    Decode database and table names from database URI path and/or query string.
 
-        # TODO: Make configurable.
-        dburi = "crate://localhost:4200"
-        # dburi = "crate+psycopg://localhost:4200"  # noqa: ERA001
+    Variants:
 
-        # NOTE: `chunksize` is important, otherwise CrateDB will croak with
-        #       RuntimeException[java.lang.OutOfMemoryError: Java heap space]
-        # TODO: Unlock `engine_kwargs={"fast_executemany": True}`.
-        #       Exception:
-        #           TypeError: Invalid argument(s) 'fast_executemany' sent to create_engine(),
-        #           using configuration CrateDialect/QueuePool/Engine.
-        #           Please check that the keyword arguments are appropriate for this combination of components.
-        #       Note that `fast_executemany` is only provided by `pyodbc`.
-        # TODO: Unlock `method="multi"`
-        #       sqlalchemy.exc.CompileError: The 'crate' dialect with current
-        #       database version settings does not support in-place multirow inserts.
-        ddf.to_sql("demo", uri=dburi, index=False, if_exists="replace", chunksize=10000, parallel=True)
+        /<database>/<table>
+        ?database=<database>&table=<table>
+        ?schema=<database>&table=<table>
+    """
+    try:
+        database, table = url.path.strip("/").split("/")
+    except ValueError as ex:
+        if "too many values to unpack" not in str(ex) and "not enough values to unpack" not in str(ex):
+            raise
+        database = url.query.get("database")
+        table = url.query.get("table")
+        if url.scheme == "crate" and not database:
+            database = url.query.get("schema")
+    return database, table
 
-        # TODO: Read back and `assert_frame_equal()`
+
+class SqlAlchemyAdapter:
+    """
+    Adapter to talk to SQLAlchemy-compatible databases.
+    """
+
+    def __init__(self, url: t.Union[URL, str], progress: bool = False, debug: bool = False):
+        self.progress = progress
+
+        if isinstance(url, str):
+            url: URL = URL(url)
+
+        self.database, self.table = decode_database_table(url)
+
+        # Special handling for SQLite and CrateDB databases.
+        self.dburi = str(url.with_query(None))
+        if url.scheme == "crate":
+            url = url.with_path("")
+            if self.database:
+                url = url.with_query({"schema": self.database})
+            self.dburi = str(url)
+        elif url.scheme == "sqlite":
+            self.dburi = self.dburi.replace("sqlite:/", "sqlite:///")
+        else:
+            url = url.with_path(self.database)
+            self.dburi = str(url)
+
+        logger.info(f"SQLAlchemy DB URI: {self.dburi}")
+
+    @classmethod
+    def from_url(cls, url: t.Union[URL, str], **kwargs) -> "SqlAlchemyAdapter":
+        return cls(url=url, **kwargs)
+
+    def write(self, source: t.Union[pd.DataFrame, InfluxDbAdapter]):
+        logger.info("Loading dataframes into RDBMS/SQL database using pandas/Dask")
+        if isinstance(source, InfluxDbAdapter):
+            for df in source.read_df():
+                dataframe_to_sql(df, dburi=self.dburi, tablename=self.table, progress=self.progress)
+        elif isinstance(source, pd.DataFrame):
+            dataframe_to_sql(source, dburi=self.dburi, tablename=self.table, progress=self.progress)
+        else:
+            raise NotImplementedError(f"Failed handling source: {source}")
+
+    def refresh_table(self):
+        engine = sa.create_engine(self.dburi)
+        with engine.connect() as connection:
+            return connection.execute(sa.text(f"REFRESH TABLE {self.table};"))
+
+    def read_records(self) -> t.List[t.Dict]:
+        engine = sa.create_engine(self.dburi)
+        with engine.connect() as connection:
+            result = connection.execute(sa.text(f"SELECT * FROM {self.table};"))  # noqa: S608
+            records = [dict(item) for item in result.mappings().fetchall()]
+            return records
+
+    def create_database(self):
+        try:
+            return create_database(self.dburi)
+        except sqlalchemy.exc.ProgrammingError as ex:
+            if "psycopg2.errors.DuplicateDatabase" not in str(ex):
+                raise
+
+    def run_sql(self, sql: str):
+        engine = sa.create_engine(self.dburi)
+        with engine.connect() as connection:
+            connection.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+            return connection.execute(sa.text(sql))
+
+    def run_sql_raw(self, sql: str):
+        engine = sa.create_engine(self.dburi)
+        connection = engine.raw_connection()
+        connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return result
