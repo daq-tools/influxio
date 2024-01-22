@@ -84,7 +84,7 @@ dependencies = [
   'importlib-metadata; python_version <= "3.9"',
   "influxdb-client[ciso]<2",
   "line-protocol-parser<2",
-  "pandas<2.2",
+  "pandas<2.3",
   "psycopg2-binary<3",
   "SQLAlchemy-Utils<0.42",
   "yarl<2",
