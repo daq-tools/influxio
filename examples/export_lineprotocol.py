@@ -7,6 +7,7 @@ Miniature data pipeline shuffling data from InfluxDB to PostgreSQL/CrateDB.
 
 https://docs.influxdata.com/influxdb/latest/reference/syntax/line-protocol/
 """
+
 import gzip
 import logging
 from pathlib import Path
