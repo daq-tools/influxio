@@ -4,7 +4,6 @@ from pathlib import Path
 from yarl import URL
 
 from influxio.model import InfluxDbAdapter, SqlAlchemyAdapter
-from influxio.testdata import DataFrameFactory
 from influxio.util.db import get_sqlalchemy_dialects
 
 logger = logging.getLogger(__name__)
@@ -51,6 +50,8 @@ def copy(source: str, target: str, progress: bool = False):
         raise NotImplementedError(f"Data sink not implemented: {target_url}")
 
     if source_url.scheme == "testdata":
+        from influxio.testdata import DataFrameFactory
+
         dff = DataFrameFactory(**source_url.query)
         df = dff.make(source_url.host)
         sink.write_df(df)
