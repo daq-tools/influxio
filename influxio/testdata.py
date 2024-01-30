@@ -6,8 +6,8 @@ from inspect import signature
 
 import numpy as np
 import pandas as pd
-from pandas._testing import makeMixedDataFrame, makeTimeDataFrame
 from pandas.io.formats.info import DataFrameInfo
+from pueblo.testing.pandas import makeMixedDataFrame, makeTimeDataFrame
 
 logger = logging.getLogger(__name__)
 

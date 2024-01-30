@@ -86,6 +86,7 @@ dependencies = [
   "line-protocol-parser<2",
   "pandas<2.3",
   "psycopg2-binary<3",
+  "pueblo>=0.0.7",
   "SQLAlchemy-Utils<0.42",
   "yarl<2",
 ]
