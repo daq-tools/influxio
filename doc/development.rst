@@ -7,6 +7,9 @@ Development
 Sandbox
 *******
 
+Source Code
+===========
+
 Acquire sources, create Python virtualenv, install package and dependencies,
 and run software tests::
 
@@ -15,6 +18,51 @@ and run software tests::
     python3 -m venv .venv
     source .venv/bin/activate
     pip install --use-pep517 --prefer-binary --editable=.[test,develop,release]
+
+Services
+========
+
+For properly running the test cases, you will need running instances of InfluxDB,
+PostgreSQL, and CrateDB. The easiest way to spin up those instances is to use
+Docker or Podman.
+
+InfluxDB
+--------
+.. code-block:: sh
+
+    docker run --rm -it --publish=8086:8086 \
+        --env=DOCKER_INFLUXDB_INIT_MODE=setup \
+        --env=DOCKER_INFLUXDB_INIT_USERNAME=admin \
+        --env=DOCKER_INFLUXDB_INIT_PASSWORD=secret1234 \
+        --env=DOCKER_INFLUXDB_INIT_ORG=example \
+        --env=DOCKER_INFLUXDB_INIT_BUCKET=default \
+        --env=DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=token \
+        --volume="$PWD/var/lib/influxdb2:/var/lib/influxdb2" \
+        influxdb:2.7
+
+- https://github.com/docker-library/docs/blob/master/influxdb/README.md
+
+CrateDB
+-------
+.. code-block:: sh
+
+    docker run --rm -it --publish=4200:4200 \
+        --volume="$PWD/var/lib/cratedb:/data" \
+        crate:5.6 -Cdiscovery.type=single-node
+
+- https://github.com/docker-library/docs/blob/master/crate/README.md
+
+PostgreSQL
+----------
+.. code-block:: sh
+
+    docker run --rm -it --publish=5432:5432 \
+        --env "POSTGRES_HOST_AUTH_METHOD=trust" postgres:16 \
+        postgres -c log_statement=all
+
+Software Tests
+==============
+Invoke software tests::
 
     # Run linter and regular test suite.
     poe check

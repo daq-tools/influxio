@@ -81,28 +81,8 @@ For properly running some of the example invocations outlined below, you will
 need an InfluxDB and a CrateDB server. The easiest way to spin up those
 instances is to use Podman or Docker.
 
-.. code-block:: sh
-
-    docker run --rm -it --publish=8086:8086 \
-        --env=DOCKER_INFLUXDB_INIT_MODE=setup \
-        --env=DOCKER_INFLUXDB_INIT_USERNAME=admin \
-        --env=DOCKER_INFLUXDB_INIT_PASSWORD=secret1234 \
-        --env=DOCKER_INFLUXDB_INIT_ORG=example \
-        --env=DOCKER_INFLUXDB_INIT_BUCKET=default \
-        --env=DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=token \
-        --volume="$PWD/var/lib/influxdb2:/var/lib/influxdb2" \
-        influxdb:2.7
-
-- https://github.com/docker-library/docs/blob/master/influxdb/README.md
-
-.. code-block:: sh
-
-    docker run --rm -it --publish=4200:4200 --publish=5432:5432 \
-        --volume="$PWD/var/lib/cratedb:/data" \
-        crate:5.5 -Cdiscovery.type=single-node
-
-- https://github.com/docker-library/docs/blob/master/crate/README.md
-
+Please visit the ``docs/development.rst`` documentation to learn about how to
+spin up corresponding sandbox instances on your workstation.
 
 Command line use
 ================
