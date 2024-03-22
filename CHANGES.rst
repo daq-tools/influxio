@@ -5,6 +5,9 @@ influxio changelog
 
 in progress
 ===========
+
+2024-03-22 v0.1.2
+=================
 - Add support for Python 3.12
 - Dependencies: Use ``dask[dataframe]``
 
