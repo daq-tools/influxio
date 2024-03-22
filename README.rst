@@ -2,6 +2,34 @@
 influxio
 ########
 
+.. image:: https://github.com/daq-tools/influxio/actions/workflows/tests.yml/badge.svg
+    :target: https://github.com/daq-tools/influxio/actions/workflows/tests.yml
+    :alt: Build status
+
+.. image:: https://codecov.io/gh/daq-tools/influxio/branch/master/graph/badge.svg
+    :target: https://app.codecov.io/gh/daq-tools/influxio
+    :alt: Coverage
+
+.. image:: https://img.shields.io/pypi/v/influxio.svg
+    :target: https://pypi.org/project/influxio/
+    :alt: PyPI Version
+
+.. image:: https://img.shields.io/pypi/pyversions/influxio.svg
+    :target: https://pypi.org/project/influxio/
+    :alt: Python Version
+
+.. image:: https://img.shields.io/pypi/dw/influxio.svg
+    :target: https://pypi.org/project/influxio/
+    :alt: PyPI Downloads
+
+.. image:: https://img.shields.io/pypi/status/influxio.svg
+    :target: https://pypi.org/project/influxio/
+    :alt: Status
+
+.. image:: https://img.shields.io/pypi/l/influxio.svg
+    :target: https://pypi.org/project/influxio/
+    :alt: License
+
 
 *****
 About
