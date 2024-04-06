@@ -6,7 +6,7 @@ influxio
     :target: https://github.com/daq-tools/influxio/actions/workflows/tests.yml
     :alt: Build status
 
-.. image:: https://codecov.io/gh/daq-tools/influxio/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/daq-tools/influxio/branch/main/graph/badge.svg
     :target: https://app.codecov.io/gh/daq-tools/influxio
     :alt: Coverage
 
@@ -55,7 +55,7 @@ implemented right now.
 Synopsis
 ********
 
-.. code-block:: sh
+.. code-block:: shell
 
     # Export from data directory to line protocol format.
     influxio copy \
@@ -75,7 +75,7 @@ Quickstart
 If you are in a hurry, and want to run ``influxio`` without any installation,
 just use the OCI image on Podman or Docker.
 
-.. code-block:: sh
+.. code-block:: shell
 
     docker run --rm --network=host ghcr.io/daq-tools/influxio \
         influxio copy \
@@ -89,7 +89,7 @@ Setup
 
 Install ``influxio`` from PyPI.
 
-.. code-block:: sh
+.. code-block:: shell
 
     pip install influxio
 
@@ -118,7 +118,7 @@ Command line use
 Help
 ----
 
-.. code-block:: sh
+.. code-block:: shell
 
     influxio --help
     influxio info
@@ -127,7 +127,7 @@ Help
 Import
 ------
 
-.. code-block:: sh
+.. code-block:: shell
 
     # From test data to API.
     # Choose one of dummy, mixed, dateindex, wide.
@@ -158,7 +158,7 @@ Import
 Export
 ------
 
-.. code-block:: sh
+.. code-block:: shell
 
     # From API to database file.
     influxio copy \
@@ -191,7 +191,7 @@ OCI
 OCI images are available on the GitHub Container Registry (GHCR). In order to
 run them on Podman or Docker, invoke:
 
-.. code-block:: sh
+.. code-block:: shell
 
     docker run --rm --network=host ghcr.io/daq-tools/influxio \
         influxio copy \
@@ -202,7 +202,7 @@ If you want to work with files on your filesystem, you will need to either
 mount the working directory into the container using the ``--volume`` option,
 or use the ``--interactive`` option to consume STDIN, like:
 
-.. code-block:: sh
+.. code-block:: shell
 
     docker run --rm --volume=$(pwd):/data ghcr.io/daq-tools/influxio \
         influxio copy "file:///data/export.lp" "sqlite:///data/export.sqlite?table=export"
@@ -216,7 +216,7 @@ shortcut for that, this section outlines how to use an alias for ``influxio``,
 and a variable for storing the input URL. It may be useful to save a few
 keystrokes on subsequent invocations.
 
-.. code-block:: sh
+.. code-block:: shell
 
     docker pull ghcr.io/daq-tools/influxio:nightly
     alias influxio="docker run --rm --interactive ghcr.io/daq-tools/influxio:nightly influxio"

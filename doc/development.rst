@@ -28,7 +28,7 @@ Docker or Podman.
 
 InfluxDB
 --------
-.. code-block:: sh
+.. code-block:: shell
 
     docker run --rm -it --publish=8086:8086 \
         --env=DOCKER_INFLUXDB_INIT_MODE=setup \
@@ -44,7 +44,7 @@ InfluxDB
 
 CrateDB
 -------
-.. code-block:: sh
+.. code-block:: shell
 
     docker run --rm -it --publish=4200:4200 \
         --volume="$PWD/var/lib/cratedb:/data" \
@@ -54,7 +54,7 @@ CrateDB
 
 PostgreSQL
 ----------
-.. code-block:: sh
+.. code-block:: shell
 
     docker run --rm -it --publish=5432:5432 \
         --env "POSTGRES_HOST_AUTH_METHOD=trust" postgres:16 \
