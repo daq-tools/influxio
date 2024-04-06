@@ -46,7 +46,7 @@ jobs:
         ports:
           - 4200:4200
         env:
-          CRATE_HEAP_SIZE: 1g
+          CRATE_HEAP_SIZE: 4g
 
       postgresql:
         image: postgres:16
