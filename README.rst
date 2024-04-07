@@ -39,8 +39,8 @@ You can use ``influxio`` to import and export data into/from InfluxDB.
 It can be used both as a standalone program, and as a library.
 
 ``influxio`` is, amongst others, based on the excellent `dask`_, `fsspec`_,
-`influxdb-client`_, `line-protocol-parser`_, `pandas`_, and `SQLAlchemy`_
-packages.
+`influxdb-client`_, `influx-line`_, `line-protocol-parser`_, `pandas`_,
+and `SQLAlchemy`_ packages.
 
 Please note that ``influxio`` is alpha-quality software, and a work in progress.
 Contributions of all kinds are very welcome, in order to make it more solid.
@@ -253,6 +253,7 @@ There are a few other projects which are aiming at similar goals.
 .. _development: doc/development.rst
 .. _fsspec: https://pypi.org/project/fsspec/
 .. _influx: https://docs.influxdata.com/influxdb/latest/reference/cli/influx/
+.. _influx-line: https://github.com/functionoffunction/influx-line
 .. _influxd: https://docs.influxdata.com/influxdb/latest/reference/cli/influxd/
 .. _InfluxDB Fetcher: https://github.com/hgomez/influxdb
 .. _InfluxDB line protocol: https://docs.influxdata.com/influxdb/latest/reference/syntax/line-protocol/
