@@ -163,7 +163,7 @@ Export
     # From API to database file.
     influxio copy \
         "http://example:token@localhost:8086/testdrive/demo" \
-        "sqlite://export.sqlite?table=demo"
+        "sqlite:///export.sqlite?table=demo"
 
     # From API to database server.
     influxio copy \
