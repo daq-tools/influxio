@@ -6,6 +6,7 @@ from pathlib import Path
 
 import fsspec
 import pandas as pd
+from influx_line import InfluxLine
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,27 @@ def dataframe_from_lineprotocol(data: t.IO[t.Any]):
     """
     records = records_from_lineprotocol(data)
     return pd.DataFrame(records)
+
+
+def dataframe_to_lineprotocol(df: pd.DataFrame, progress: bool = False) -> t.Generator[str, None, None]:
+    """
+    Convert DataFrame to InfluxDB Line Protocol.
+
+    TODO: Needs a test verifying dispatching of tags.
+    TODO: Needs configurability to manually dispatch columns to either fields or tags.
+    TODO: Needs heuristics if timestamp field is called differently than `time`.
+    """
+    for record in df.to_dict(orient="records"):
+        line = InfluxLine(record["measurement"])
+        line.set_timestamp(record["time"].to_datetime64().view("int64"))
+        del record["measurement"]
+        del record["time"]
+        for key, value in record.items():
+            if isinstance(value, (int, float)):
+                line.add_field(key, value)
+            else:
+                line.add_tag(key, value)
+        yield str(line)
 
 
 def dataframe_to_sql(

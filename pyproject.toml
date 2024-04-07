@@ -82,6 +82,7 @@ dependencies = [
   "cratedb-toolkit",
   "dask[dataframe]>=2020,<=2024.3.1",
   'importlib-metadata; python_version <= "3.9"',
+  "influx-line==1.0.0",
   "influxdb-client[ciso]<2",
   "line-protocol-parser<2",
   "pandas<2.3",

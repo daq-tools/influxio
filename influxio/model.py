@@ -1,6 +1,9 @@
+import dataclasses
 import json
 import logging
+import sys
 import typing as t
+from enum import auto
 from pathlib import Path
 
 import influxdb_client.rest
@@ -12,8 +15,8 @@ from influxdb_client import InfluxDBClient
 from sqlalchemy_utils import create_database
 from yarl import URL
 
-from influxio.io import dataframe_to_sql
-from influxio.util.common import run_command
+from influxio.io import dataframe_to_lineprotocol, dataframe_to_sql
+from influxio.util.common import AutoStrEnum, run_command
 
 logger = logging.getLogger(__name__)
 
@@ -182,6 +185,7 @@ class InfluxDbAdapter:
         """
         Export data into lineprotocol format (ILP) by invoking `influxd inspect export-lp`.
 
+        TODO: Unify with `FileAdapter` sink and expand with `InfluxDbAdapter`'s API connectivity.
         TODO: Using a hyphen `-` for `--output-path` works well now, so export can also go to stdout.
         TODO: By default, it will *append* to the .lp file.
               Make it configurable to "replace" data.
@@ -305,3 +309,103 @@ class SqlAlchemyAdapter:
         cursor.close()
         connection.close()
         return result
+
+
+class DataFormat(AutoStrEnum):
+    """
+    Manage data formats implemented by `FileAdapter`.
+    """
+
+    LINE_PROTOCOL = auto()
+    ANNOTATED_CSV = auto()
+
+    @classmethod
+    def from_name(cls, path: str) -> "DataFormat":
+        if path.endswith(".lp"):
+            return cls.LINE_PROTOCOL
+        elif path.endswith(".csv"):
+            return cls.ANNOTATED_CSV
+        else:
+            raise ValueError(f"Unable to derive data format from file name: {path}")
+
+    @classmethod
+    def from_url(cls, url: t.Union[URL, str]) -> "DataFormat":
+        if isinstance(url, str):
+            url: URL = URL(url)
+        if format_ := url.query.get("format"):
+            if format_ == "lp":
+                return cls.LINE_PROTOCOL
+            elif format_ == "csv":
+                return cls.ANNOTATED_CSV
+            else:
+                raise NotImplementedError(f"Invalid data format: {format_}")
+        try:
+            return cls.from_name(url.host or url.path)
+        except ValueError as ex:
+            raise ValueError(f"Unable to derive data format from URL filename or query parameter: {url}") from ex
+
+
+@dataclasses.dataclass
+class OutputFile:
+    """
+    Manage output file and format for `FileAdapter`.
+    """
+
+    path: str
+    format: DataFormat  # noqa: A003
+
+    @classmethod
+    def from_url(cls, url: t.Union[URL, str]) -> "OutputFile":
+        if isinstance(url, str):
+            url: URL = URL(url)
+        if url.scheme == "file":
+            return cls(path=url.host or url.path, format=DataFormat.from_url(url))
+        else:
+            raise NotImplementedError(f"Unknown file output scheme: {url.scheme}")
+
+    @property
+    def stream(self) -> t.IO:
+        if self.path == "-":
+            return sys.stdout
+        else:
+            return open(self.path, "w")
+
+
+class FileAdapter:
+    """
+    Adapter for pipelining data in and out of files.
+    """
+
+    def __init__(self, url: t.Union[URL, str], progress: bool = False, debug: bool = False):
+        self.progress = progress
+
+        if isinstance(url, str):
+            url: URL = URL(url)
+
+        self.output = OutputFile.from_url(url)
+
+    @classmethod
+    def from_url(cls, url: t.Union[URL, str], **kwargs) -> "FileAdapter":
+        """
+        Factory to create a `FileAdapter` instance from a URL.
+        """
+        return cls(url=url, **kwargs)
+
+    def write(self, source: t.Union[pd.DataFrame, InfluxDbAdapter]):
+        """
+        Export data from a pandas DataFrame or from an API-connected InfluxDB database into lineprotocol format (ILP).
+        """
+        logger.info(f"Exporting dataframes in {self.output.format.value} format to {self.output.path}")
+        generators = []
+        if self.output.format is DataFormat.LINE_PROTOCOL:
+            if isinstance(source, InfluxDbAdapter):
+                for df in source.read_df():
+                    generators.append(dataframe_to_lineprotocol(df, progress=self.progress))
+            elif isinstance(source, pd.DataFrame):
+                generators.append(dataframe_to_lineprotocol(source, progress=self.progress))
+            else:
+                raise NotImplementedError(f"Unknown data source: {source}")
+        else:
+            raise NotImplementedError(f"File output format not implemented: {self.output.format}")
+        for generator in generators:
+            print("\n".join(generator), file=self.output.stream)

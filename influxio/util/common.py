@@ -4,6 +4,7 @@ import shlex
 import subprocess
 import sys
 import typing as t
+from enum import Enum
 from textwrap import dedent
 
 logger = logging.getLogger(__name__)
@@ -46,3 +47,16 @@ def run_command(command: str):
     else:
         if output:
             logger.info(f"Command output:\n{output}")
+
+
+class AutoStrEnum(str, Enum):
+    """
+    StrEnum where enum.auto() returns the field name.
+    See https://docs.python.org/3.9/library/enum.html#using-automatic-values
+
+    From https://stackoverflow.com/a/74539097.
+    """
+
+    @staticmethod
+    def _generate_next_value_(name: str, start: int, count: int, last_values: list) -> str:  # noqa: ARG004
+        return name
