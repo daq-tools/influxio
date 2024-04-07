@@ -38,7 +38,7 @@ def help_copy():
     # From API to database file.
     influxio copy \
         http://example:token@localhost:8086/testdrive/demo \
-        sqlite://export.sqlite
+        sqlite:///export.sqlite
 
     # From API to database server.
     influxio copy \
