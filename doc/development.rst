@@ -48,7 +48,7 @@ CrateDB
 
     docker run --rm -it --publish=4200:4200 \
         --volume="$PWD/var/lib/cratedb:/data" \
-        crate:5.6 -Cdiscovery.type=single-node
+        crate:latest -Cdiscovery.type=single-node
 
 - https://github.com/docker-library/docs/blob/master/crate/README.md
 
