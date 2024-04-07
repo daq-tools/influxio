@@ -1,4 +1,4 @@
-from influxio.model import SqlAlchemyAdapter
+from influxio.model import DataFormat, FileAdapter, SqlAlchemyAdapter
 
 
 def test_cratedb_adapter_void():
@@ -34,3 +34,15 @@ def test_cratedb_adapter_database_table():
     assert adapter.database == "testdrive"
     assert adapter.table == "basic"
     assert adapter.dburi == "crate://localhost:4200/?schema=testdrive"
+
+
+def test_file_adapter_ilp_file():
+    adapter = FileAdapter.from_url("file://foo.lp")
+    assert adapter.output.path == "foo.lp"
+    assert adapter.output.format is DataFormat.LINE_PROTOCOL
+
+
+def test_file_adapter_ilp_stdout():
+    adapter = FileAdapter.from_url("file://-?format=lp")
+    assert adapter.output.path == "-"
+    assert adapter.output.format is DataFormat.LINE_PROTOCOL

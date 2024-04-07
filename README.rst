@@ -175,6 +175,11 @@ Export
         "http://example:token@localhost:8086/testdrive/demo" \
         "file://export.lp"
 
+    # From API to line protocol on stdout.
+    influxio copy \
+        "http://example:token@localhost:8086/testdrive/demo" \
+        "file://-?format=lp"
+
     # From data directory to line protocol file.
     influxio copy \
         "file:///path/to/data/engine?org=example&bucket=testdrive&measurement=demo" \

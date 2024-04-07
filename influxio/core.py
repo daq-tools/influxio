@@ -3,7 +3,7 @@ from pathlib import Path
 
 from yarl import URL
 
-from influxio.model import InfluxDbAdapter, SqlAlchemyAdapter
+from influxio.model import FileAdapter, InfluxDbAdapter, SqlAlchemyAdapter
 from influxio.util.db import get_sqlalchemy_dialects
 
 logger = logging.getLogger(__name__)
@@ -46,6 +46,8 @@ def copy(source: str, target: str, progress: bool = False):
         sink = InfluxDbAdapter.from_url(target)
     elif scheme_primary in sqlalchemy_dialects:
         sink = SqlAlchemyAdapter.from_url(target, progress=True)
+    elif target_url.scheme == "file":
+        sink = FileAdapter.from_url(target, progress=True)
     else:
         raise NotImplementedError(f"Data sink not implemented: {target_url}")
 
@@ -63,7 +65,7 @@ def copy(source: str, target: str, progress: bool = False):
         sink.from_lineprotocol(path)
 
     elif source_url.scheme.startswith("http"):
-        if isinstance(sink, SqlAlchemyAdapter):
+        if isinstance(sink, (FileAdapter, SqlAlchemyAdapter)):
             source_node = InfluxDbAdapter.from_url(source)
             sink.write(source_node)
         else:
