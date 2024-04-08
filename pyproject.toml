@@ -80,7 +80,7 @@ dependencies = [
   "colorama<1",
   "crate[sqlalchemy]",
   "cratedb-toolkit",
-  "dask[dataframe]>=2020,<=2024.3.1",
+  "dask[dataframe]>=2020,<=2024.4.1",
   'importlib-metadata; python_version <= "3.9"',
   "influx-line==1.0.0",
   "influxdb-client[ciso]<2",
