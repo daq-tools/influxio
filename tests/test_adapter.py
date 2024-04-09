@@ -1,4 +1,5 @@
-from influxio.model import DataFormat, FileAdapter, SqlAlchemyAdapter
+from influxio.adapter import FileAdapter, SqlAlchemyAdapter
+from influxio.model import DataFormat
 
 
 def test_cratedb_adapter_void():

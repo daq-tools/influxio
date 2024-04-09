@@ -6,6 +6,10 @@ influxio backlog
 ************
 Iteration +1
 ************
+- [o] Parameters bucket-id and measurement are obligatory on data directory export
+  Verify that.
+- [o] Demonstrate "library use" in README
+- [o] Publish documentation on RTD
 - [o] Add annotated CSV export/import
 - [o] Address "TODO" items
 - [o] Tests using ``assert_dataframe_equal``? Maybe in ``cratedb-toolkit``?

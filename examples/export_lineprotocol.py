@@ -12,8 +12,8 @@ import gzip
 import logging
 from pathlib import Path
 
+from influxio.adapter import InfluxDbAdapter, InfluxDbEngineAdapter
 from influxio.io import dataframe_from_lineprotocol
-from influxio.model import InfluxDbAdapter, InfluxDbEngineAdapter
 from influxio.testdata import DataFrameFactory
 from influxio.util.common import setup_logging
 
