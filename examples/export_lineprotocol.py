@@ -12,7 +12,7 @@ import gzip
 import logging
 from pathlib import Path
 
-from influxio.adapter import InfluxDbAdapter, InfluxDbEngineAdapter
+from influxio.adapter import InfluxDbApiAdapter, InfluxDbEngineAdapter
 from influxio.io import dataframe_from_lineprotocol
 from influxio.testdata import DataFrameFactory
 from influxio.util.common import setup_logging
@@ -26,7 +26,7 @@ DATASET_SIZE = 15_000
 
 def main():
     logger.info("Connecting to InfluxDB")
-    influx = InfluxDbAdapter(
+    influx = InfluxDbApiAdapter(
         url="http://localhost:8086",
         org="example",
         token="token",  # noqa: S106

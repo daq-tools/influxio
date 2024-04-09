@@ -32,7 +32,7 @@ Iteration +2
 ************
 Iteration +3
 ************
-- [o] Unlock more parameters in InfluxDbAdapter.write_df
+- [o] Unlock more parameters in InfluxDbApiAdapter.write_df
 - [o] Format: Compressed line protocol
 - [o] Format: Annotated CSV
   - https://docs.influxdata.com/influxdb/v2.6/reference/syntax/annotated-csv/

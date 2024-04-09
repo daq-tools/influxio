@@ -4,7 +4,7 @@ from pathlib import Path
 
 from yarl import URL
 
-from influxio.adapter import FileAdapter, InfluxDbAdapter, InfluxDbEngineAdapter, SqlAlchemyAdapter
+from influxio.adapter import FileAdapter, InfluxDbApiAdapter, InfluxDbEngineAdapter, SqlAlchemyAdapter
 from influxio.model import CommandResult
 from influxio.util.db import get_sqlalchemy_dialects
 
@@ -45,7 +45,7 @@ def copy(source: str, target: str, progress: bool = False) -> t.Union[CommandRes
     scheme_primary = target_url.scheme.split("+")[0]
 
     if target_url.scheme.startswith("http"):
-        sink = InfluxDbAdapter.from_url(target)
+        sink = InfluxDbApiAdapter.from_url(target)
     elif scheme_primary in sqlalchemy_dialects:
         sink = SqlAlchemyAdapter.from_url(target, progress=True)
     elif target_url.scheme == "file":
@@ -81,7 +81,7 @@ def copy(source: str, target: str, progress: bool = False) -> t.Union[CommandRes
 
     elif source_url.scheme.startswith("http"):
         if isinstance(sink, (FileAdapter, SqlAlchemyAdapter)):
-            source_node = InfluxDbAdapter.from_url(source)
+            source_node = InfluxDbApiAdapter.from_url(source)
             sink.write(source_node)
         else:
             sink.from_lineprotocol(str(source_url))
