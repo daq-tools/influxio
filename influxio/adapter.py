@@ -21,7 +21,7 @@ from influxio.util.common import run_command, url_fullpath
 logger = logging.getLogger(__name__)
 
 
-class InfluxDbAdapter:
+class InfluxDbApiAdapter:
     def __init__(self, url: str, token: str, org: str, bucket: str, measurement: str, debug: bool = False):
         self.url = url
         self.token = token
@@ -32,7 +32,7 @@ class InfluxDbAdapter:
         self.client = InfluxDBClient(url=self.url, org=self.org, token=self.token, debug=self.debug)
 
     @classmethod
-    def from_url(cls, url: t.Union[URL, str], **kwargs) -> "InfluxDbAdapter":
+    def from_url(cls, url: t.Union[URL, str], **kwargs) -> "InfluxDbApiAdapter":
         if isinstance(url, str):
             url: URL = URL(url)
         token = url.password
@@ -212,7 +212,7 @@ class InfluxDbEngineAdapter:
         """
         Export data into lineprotocol format (ILP) by invoking `influxd inspect export-lp`.
 
-        TODO: Unify with `FileAdapter` sink and expand with `InfluxDbAdapter`'s API connectivity.
+        TODO: Unify with `FileAdapter` sink and expand with `InfluxDbApiAdapter`'s API connectivity.
         TODO: Using a hyphen `-` for `--output-path` works well now, so export can also go to stdout.
         TODO: By default, it will *append* to the .lp file.
               Make it configurable to "replace" data.
@@ -292,9 +292,9 @@ class SqlAlchemyAdapter:
     def from_url(cls, url: t.Union[URL, str], **kwargs) -> "SqlAlchemyAdapter":
         return cls(url=url, **kwargs)
 
-    def write(self, source: t.Union[pd.DataFrame, InfluxDbAdapter]):
+    def write(self, source: t.Union[pd.DataFrame, InfluxDbApiAdapter]):
         logger.info("Loading dataframes into RDBMS/SQL database using pandas/Dask")
-        if isinstance(source, InfluxDbAdapter):
+        if isinstance(source, InfluxDbApiAdapter):
             for df in source.read_df():
                 dataframe_to_sql(df, dburi=self.dburi, tablename=self.table, progress=self.progress)
         elif isinstance(source, pd.DataFrame):
@@ -381,14 +381,14 @@ class FileAdapter:
         """
         return cls(url=url, **kwargs)
 
-    def write(self, source: t.Union[pd.DataFrame, InfluxDbAdapter]):
+    def write(self, source: t.Union[pd.DataFrame, InfluxDbApiAdapter]):
         """
         Export data from a pandas DataFrame or from an API-connected InfluxDB database into lineprotocol format (ILP).
         """
         logger.info(f"Exporting dataframes in {self.output.format.value} format to {self.output.path}")
         generators = []
         if self.output.format is DataFormat.LINE_PROTOCOL_UNCOMPRESSED:
-            if isinstance(source, InfluxDbAdapter):
+            if isinstance(source, InfluxDbApiAdapter):
                 for df in source.read_df():
                     generators.append(dataframe_to_lineprotocol(df, progress=self.progress))
             elif isinstance(source, pd.DataFrame):

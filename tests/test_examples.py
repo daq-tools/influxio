@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 from examples.export_lineprotocol import LINEPROTOCOL_FILE
 from examples.export_sqlalchemy import DBURI
-from influxio.adapter import InfluxDbAdapter
+from influxio.adapter import InfluxDbApiAdapter
 
 
 def get_example_program_path(filename: str):
@@ -38,7 +38,7 @@ def reset_resources():
     """
 
     # Reset InfluxDB database.
-    influx = InfluxDbAdapter(
+    influx = InfluxDbApiAdapter(
         url="http://localhost:8086",
         org="example",
         token="token",  # noqa: S106

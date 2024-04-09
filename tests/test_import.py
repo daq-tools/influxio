@@ -3,7 +3,7 @@ import dataclasses
 import pytest
 
 import influxio.core
-from influxio.adapter import InfluxDbAdapter
+from influxio.adapter import InfluxDbApiAdapter
 
 
 @dataclasses.dataclass
@@ -31,7 +31,7 @@ def test_import_testdata(spec: DatasetItemSpec, caplog):
     target_url = f"http://example:token@localhost:8086/testdrive/testdata-{dataset}"
 
     # Make sure database is purged.
-    api = InfluxDbAdapter.from_url(target_url)
+    api = InfluxDbApiAdapter.from_url(target_url)
     api.delete_measurement()
 
     # Transfer data.
@@ -55,7 +55,7 @@ def test_import_lineprotocol_file(line_protocol_file_basic, caplog):
     target_url = "http://example:token@localhost:8086/testdrive/basic"
 
     # Make sure database is purged.
-    api = InfluxDbAdapter.from_url(target_url)
+    api = InfluxDbApiAdapter.from_url(target_url)
     api.delete_measurement()
 
     # Transfer data.
@@ -78,7 +78,7 @@ def test_import_lineprotocol_url(line_protocol_url_basic, caplog):
     target_url = "http://example:token@localhost:8086/testdrive/basic"
 
     # Make sure database is purged.
-    api = InfluxDbAdapter.from_url(target_url)
+    api = InfluxDbApiAdapter.from_url(target_url)
     api.delete_measurement()
 
     # Transfer data.

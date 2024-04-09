@@ -10,7 +10,7 @@ import logging
 
 import sqlalchemy as sa
 
-from influxio.adapter import InfluxDbAdapter
+from influxio.adapter import InfluxDbApiAdapter
 from influxio.io import dataframe_to_sql
 from influxio.testdata import DataFrameFactory
 from influxio.util.common import jd, setup_logging
@@ -23,7 +23,7 @@ DATASET_SIZE = 15_000
 
 def main():
     logger.info("Connecting to InfluxDB")
-    influx = InfluxDbAdapter(
+    influx = InfluxDbApiAdapter(
         url="http://localhost:8086",
         org="example",
         token="token",  # noqa: S106

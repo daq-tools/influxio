@@ -5,7 +5,7 @@ import pytest
 from yarl import URL
 
 import influxio.core
-from influxio.adapter import InfluxDbAdapter, SqlAlchemyAdapter
+from influxio.adapter import InfluxDbApiAdapter, SqlAlchemyAdapter
 
 CRATEDB_URL = "crate://crate@localhost:4200/testdrive/basic"
 INFLUXDB_API_URL = "http://example:token@localhost:8086/testdrive/basic"
@@ -15,8 +15,8 @@ ILP_URL_STDOUT = "file://-?format=lp"
 
 
 @pytest.fixture
-def influxdb() -> InfluxDbAdapter:
-    return InfluxDbAdapter.from_url(INFLUXDB_API_URL)
+def influxdb() -> InfluxDbApiAdapter:
+    return InfluxDbApiAdapter.from_url(INFLUXDB_API_URL)
 
 
 @pytest.fixture
