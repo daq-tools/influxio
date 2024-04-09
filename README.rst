@@ -2,33 +2,41 @@
 influxio
 ########
 
-.. image:: https://github.com/daq-tools/influxio/actions/workflows/tests.yml/badge.svg
+.. start-badges
+
+|ci-tests| |ci-coverage| |license| |pypi-downloads|
+
+|python-versions| |status| |pypi-version|
+
+.. |ci-tests| image:: https://github.com/daq-tools/influxio/actions/workflows/tests.yml/badge.svg
     :target: https://github.com/daq-tools/influxio/actions/workflows/tests.yml
     :alt: Build status
 
-.. image:: https://codecov.io/gh/daq-tools/influxio/branch/main/graph/badge.svg
+.. |ci-coverage| image:: https://codecov.io/gh/daq-tools/influxio/branch/main/graph/badge.svg
     :target: https://app.codecov.io/gh/daq-tools/influxio
     :alt: Coverage
 
-.. image:: https://img.shields.io/pypi/v/influxio.svg
+.. |pypi-version| image:: https://img.shields.io/pypi/v/influxio.svg
     :target: https://pypi.org/project/influxio/
     :alt: PyPI Version
 
-.. image:: https://img.shields.io/pypi/pyversions/influxio.svg
+.. |python-versions| image:: https://img.shields.io/pypi/pyversions/influxio.svg
     :target: https://pypi.org/project/influxio/
     :alt: Python Version
 
-.. image:: https://img.shields.io/pypi/dw/influxio.svg
-    :target: https://pypi.org/project/influxio/
-    :alt: PyPI Downloads
+.. |pypi-downloads| image:: https://static.pepy.tech/badge/influxio/month
+    :target: https://www.pepy.tech/projects/influxio
+    :alt: PyPI Downloads per month
 
-.. image:: https://img.shields.io/pypi/status/influxio.svg
+.. |status| image:: https://img.shields.io/pypi/status/influxio.svg
     :target: https://pypi.org/project/influxio/
     :alt: Status
 
-.. image:: https://img.shields.io/pypi/l/influxio.svg
+.. |license| image:: https://img.shields.io/pypi/l/influxio.svg
     :target: https://pypi.org/project/influxio/
     :alt: License
+
+.. end-badges
 
 
 *****
