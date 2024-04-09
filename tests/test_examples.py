@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 from examples.export_lineprotocol import LINEPROTOCOL_FILE
 from examples.export_sqlalchemy import DBURI
-from influxio.model import InfluxDbAdapter
+from influxio.adapter import InfluxDbAdapter
 
 
 def get_example_program_path(filename: str):

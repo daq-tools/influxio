@@ -4,7 +4,8 @@ from pathlib import Path
 
 from yarl import URL
 
-from influxio.model import CommandResult, FileAdapter, InfluxDbAdapter, InfluxDbEngineAdapter, SqlAlchemyAdapter
+from influxio.adapter import FileAdapter, InfluxDbAdapter, InfluxDbEngineAdapter, SqlAlchemyAdapter
+from influxio.model import CommandResult
 from influxio.util.db import get_sqlalchemy_dialects
 
 logger = logging.getLogger(__name__)

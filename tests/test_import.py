@@ -3,7 +3,7 @@ import dataclasses
 import pytest
 
 import influxio.core
-from influxio.model import InfluxDbAdapter
+from influxio.adapter import InfluxDbAdapter
 
 
 @dataclasses.dataclass

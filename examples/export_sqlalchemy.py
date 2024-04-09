@@ -10,8 +10,8 @@ import logging
 
 import sqlalchemy as sa
 
+from influxio.adapter import InfluxDbAdapter
 from influxio.io import dataframe_to_sql
-from influxio.model import InfluxDbAdapter
 from influxio.testdata import DataFrameFactory
 from influxio.util.common import jd, setup_logging
 

@@ -7,6 +7,8 @@ import typing as t
 from enum import Enum
 from textwrap import dedent
 
+from yarl import URL
+
 logger = logging.getLogger(__name__)
 
 
@@ -61,3 +63,14 @@ class AutoStrEnum(str, Enum):
     @staticmethod
     def _generate_next_value_(name: str, start: int, count: int, last_values: list) -> str:  # noqa: ARG004
         return name
+
+
+def url_fullpath(url: URL):
+    fullpath = url.host or ""
+    if fullpath == "-":
+        return fullpath
+    return fullpath + (url.path or "")
+
+
+def url_or_path(url: URL):
+    return url.host or url.path
