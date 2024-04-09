@@ -47,9 +47,6 @@ Contributions of all kinds are very welcome, in order to make it more solid.
 Breaking changes should be expected until a 1.0 release, so version pinning
 is recommended, especially when you use it as a library.
 
-**Caveat**: Only a few features sketched out in the README have actually been
-implemented right now.
-
 
 ********
 Synopsis
@@ -145,18 +142,24 @@ Import
         "testdata://wide/?rows=42&columns=42" \
         "http://example:token@localhost:8086/testdrive/demo"
 
-    # From line protocol file to API.
+    # From line protocol file to InfluxDB API.
     influxio copy \
         "file://tests/testdata/basic.lp" \
         "http://example:token@localhost:8086/testdrive/demo"
 
-    # From line protocol file to API.
+    # From line protocol file to InfluxDB API.
     influxio copy \
         "https://github.com/influxdata/influxdb2-sample-data/raw/master/air-sensor-data/air-sensor-data.lp" \
         "http://example:token@localhost:8086/testdrive/demo"
 
-Export
-------
+    # From line protocol file to any database supported by SQLAlchemy.
+    influxio copy \
+        "file://export.lp" \
+        "sqlite://export.sqlite?table=export"
+
+
+Export from API
+---------------
 
 .. code-block:: shell
 
@@ -180,15 +183,27 @@ Export
         "http://example:token@localhost:8086/testdrive/demo" \
         "file://-?format=lp"
 
-    # From data directory to line protocol file.
+
+Export from data directory
+--------------------------
+
+.. code-block:: shell
+
+    # From InfluxDB data directory to line protocol file.
     influxio copy \
-        "file:///path/to/data/engine?org=example&bucket=testdrive&measurement=demo" \
+        "file:///path/to/influxdb/engine?bucket-id=372d1908eab801a6&measurement=demo" \
         "file://export.lp"
 
-    # From line protocol file to database.
+    # From InfluxDB data directory to line protocol file, compressed with gzip.
     influxio copy \
-        "file://export.lp" \
-        "sqlite://export.sqlite?table=export"
+        "file:///path/to/influxdb/engine?bucket-id=372d1908eab801a6&measurement=demo" \
+        "file://export.lp.gz"
+
+    # From InfluxDB data directory to line protocol on stdout.
+    influxio copy \
+        "file:///path/to/influxdb/engine?bucket-id=372d1908eab801a6&measurement=demo" \
+        ""file://-?format=lp"
+
 
 OCI
 ---

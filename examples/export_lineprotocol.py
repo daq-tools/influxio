@@ -1,5 +1,5 @@
 """
-Miniature data pipeline shuffling data from InfluxDB to PostgreSQL/CrateDB.
+Export data from an InfluxDB data directory to InfluxDB Line Protocol (ILP) format.
 
 - Load a synthetic pandas DataFrame into InfluxDB.
 - Export data to InfluxDB line protocol format (ILP).
@@ -13,7 +13,7 @@ import logging
 from pathlib import Path
 
 from influxio.io import dataframe_from_lineprotocol
-from influxio.model import InfluxDbAdapter
+from influxio.model import InfluxDbAdapter, InfluxDbEngineAdapter
 from influxio.testdata import DataFrameFactory
 from influxio.util.common import setup_logging
 
@@ -43,7 +43,10 @@ def main():
     # Export data into file using lineprotocol format.
     logger.info("Exporting data to lineprotocol file (ILP)")
     LINEPROTOCOL_FILE.parent.mkdir(parents=True, exist_ok=True)
-    influx.to_lineprotocol(engine_path="./var/lib/influxdb2/engine", output_path=LINEPROTOCOL_FILE)
+
+    source_url = f"file://var/lib/influxdb2/engine?bucket-id={influx.bucket_id}&measurement={influx.measurement}"
+    influx_data = InfluxDbEngineAdapter.from_url(source_url)
+    influx_data.to_lineprotocol(url=f"file://{LINEPROTOCOL_FILE}")
 
     logger.info("Reading back data from lineprotocol file")
     with gzip.open(LINEPROTOCOL_FILE) as buffer:

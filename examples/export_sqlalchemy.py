@@ -1,5 +1,5 @@
 """
-Miniature data pipeline shuffling data from InfluxDB to PostgreSQL/CrateDB.
+Export data from the InfluxDB API to PostgreSQL/CrateDB.
 
 - Load a synthetic pandas DataFrame into InfluxDB.
 - Transfer data from InfluxDB to RDBMS database using SQLAlchemy/pandas/Dask.

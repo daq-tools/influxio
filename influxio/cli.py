@@ -32,8 +32,8 @@ def help_copy():
     Examples
     ========
 
-    Export
-    ------
+    Export from API
+    ---------------
 
     # From API to database file.
     influxio copy \
@@ -55,28 +55,66 @@ def help_copy():
         "http://example:token@localhost:8086/testdrive/demo" \
         "file://-?format=lp"
 
-    # From data directory to line protocol file.
+    Export from data directory
+    --------------------------
+
+    # From InfluxDB data directory to line protocol file.
     influxio copy \
-        file:///path/to/data/engine?org=example&bucket=testdrive&measurement=demo \
-        file://export.lp
+        "file:///path/to/influxdb/engine?bucket-id=372d1908eab801a6&measurement=demo" \
+        "file://export.lp"
+
+    # From InfluxDB data directory to line protocol file, compressed with gzip.
+    influxio copy \
+        "file:///path/to/influxdb/engine?bucket-id=372d1908eab801a6&measurement=demo" \
+        "file://export.lp.gz"
+
+    # From InfluxDB data directory to line protocol on stdout.
+    influxio copy \
+        "file:///path/to/influxdb/engine?bucket-id=372d1908eab801a6&measurement=demo" \
+        ""file://-?format=lp"
+
+    Convert from file
+    -----------------
 
     # From line protocol file to database.
     influxio copy \
-        file://export.lp \
-        sqlite://export.sqlite
+        "file://export.lp" \
+        "sqlite://export.sqlite?table=export"
+
 
     Import
     ------
 
-    # From line protocol file to API.
-    influxio copy \
-        https://github.com/influxdata/influxdb2-sample-data/raw/master/air-sensor-data/air-sensor-data.lp \
-        http://example:token@localhost:8086/testdrive/demo
-
     # From test data to API.
+    # Choose one of dummy, mixed, dateindex, wide.
     influxio copy \
-        testdata://dateindex \
-        http://example:token@localhost:8086/testdrive/demo
+        "testdata://dateindex/" \
+        "http://example:token@localhost:8086/testdrive/demo"
+
+    # With selected amount of rows.
+    influxio copy \
+        "testdata://dateindex/?rows=42" \
+        "http://example:token@localhost:8086/testdrive/demo"
+
+    # With selected amount of rows and columns (only supported by certain test data sources).
+    influxio copy \
+        "testdata://wide/?rows=42&columns=42" \
+        "http://example:token@localhost:8086/testdrive/demo"
+
+    # From line protocol file to InfluxDB API.
+    influxio copy \
+        "file://tests/testdata/basic.lp" \
+        "http://example:token@localhost:8086/testdrive/demo"
+
+    # From line protocol file to InfluxDB API.
+    influxio copy \
+        "https://github.com/influxdata/influxdb2-sample-data/raw/master/air-sensor-data/air-sensor-data.lp" \
+        "http://example:token@localhost:8086/testdrive/demo"
+
+    # From line protocol file to any database supported by SQLAlchemy.
+    influxio copy \
+        "file://export.lp" \
+        "sqlite://export.sqlite?table=export"
 
     Documentation
     =============

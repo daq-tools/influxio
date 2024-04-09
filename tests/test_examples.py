@@ -82,7 +82,7 @@ def test_example_lineprotocol():
     """
 
     if "CI" in os.environ:
-        raise pytest.skip("Needs access to InfluxDB storage file location")
+        raise pytest.skip("Needs access to InfluxDB data directory")
 
     # Invoke example program.
     example = get_example_program_path("export_lineprotocol.py")

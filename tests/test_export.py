@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -7,14 +8,15 @@ import influxio.core
 from influxio.model import InfluxDbAdapter, SqlAlchemyAdapter
 
 CRATEDB_URL = "crate://crate@localhost:4200/testdrive/basic"
-INFLUXDB_URL = "http://example:token@localhost:8086/testdrive/basic"
+INFLUXDB_API_URL = "http://example:token@localhost:8086/testdrive/basic"
+INFLUXDB_ENGINE_URL = "file://var/lib/influxdb2/engine?bucket-id={bucket_id}&measurement={measurement}"
 POSTGRESQL_URL = "postgresql+psycopg2://postgres@localhost:5432/testdrive/basic"
 ILP_URL_STDOUT = "file://-?format=lp"
 
 
 @pytest.fixture
 def influxdb() -> InfluxDbAdapter:
-    return InfluxDbAdapter.from_url(INFLUXDB_URL)
+    return InfluxDbAdapter.from_url(INFLUXDB_API_URL)
 
 
 @pytest.fixture
@@ -52,7 +54,7 @@ def provision_influxdb(influxdb, line_protocol_file_basic):
     Provision seed data to InfluxDB.
     """
     source_url = f"file://{line_protocol_file_basic}"
-    target_url = INFLUXDB_URL
+    target_url = INFLUXDB_API_URL
 
     # Make sure database is purged.
     influxdb.delete_measurement()
@@ -66,7 +68,7 @@ def test_export_cratedb(caplog, influxdb, provision_influxdb, cratedb):
     Export data from InfluxDB to CrateDB.
     """
 
-    source_url = INFLUXDB_URL
+    source_url = INFLUXDB_API_URL
     target_url = CRATEDB_URL
 
     # Transfer data.
@@ -87,7 +89,7 @@ def test_export_postgresql(caplog, influxdb, provision_influxdb, postgresql):
     Export data from InfluxDB to PostgreSQL.
     """
 
-    source_url = INFLUXDB_URL
+    source_url = INFLUXDB_API_URL
     target_url = POSTGRESQL_URL
 
     # Transfer data.
@@ -107,7 +109,7 @@ def test_export_sqlite(caplog, influxdb, provision_influxdb, sqlite, sqlite_url)
     Export data from InfluxDB to SQLite.
     """
 
-    source_url = INFLUXDB_URL
+    source_url = INFLUXDB_API_URL
     target_url = sqlite_url
 
     # Transfer data.
@@ -127,7 +129,7 @@ def test_export_api_ilp_stdout(caplog, capsys, influxdb, provision_influxdb):
     Verify exporting data from InfluxDB API to lineprotocol format (ILP) on STDOUT.
     """
 
-    source_url = INFLUXDB_URL
+    source_url = INFLUXDB_API_URL
     target_url = ILP_URL_STDOUT
 
     # Transfer data.
@@ -135,7 +137,7 @@ def test_export_api_ilp_stdout(caplog, capsys, influxdb, provision_influxdb):
 
     # Verify execution.
     assert f"Copying from {source_url} to {target_url}" in caplog.messages
-    assert "Exporting dataframes in LINE_PROTOCOL format to -" in caplog.messages
+    assert "Exporting dataframes in LINE_PROTOCOL_UNCOMPRESSED format to -" in caplog.messages
 
     # Verify records on stdout have the right shape.
     out, err = capsys.readouterr()
@@ -153,7 +155,7 @@ def test_export_api_ilp_file(caplog, capsys, influxdb, provision_influxdb, ilp_u
     Verify exporting data from InfluxDB API to lineprotocol format (ILP) into file.
     """
 
-    source_url = INFLUXDB_URL
+    source_url = INFLUXDB_API_URL
     target_url = str(ilp_url_file)
 
     # Transfer data.
@@ -161,7 +163,7 @@ def test_export_api_ilp_file(caplog, capsys, influxdb, provision_influxdb, ilp_u
 
     # Verify execution.
     assert f"Copying from {source_url} to {target_url}" in caplog.messages
-    assert f"Exporting dataframes in LINE_PROTOCOL format to {ilp_url_file.path}" in caplog.messages
+    assert f"Exporting dataframes in LINE_PROTOCOL_UNCOMPRESSED format to {ilp_url_file.path}" in caplog.messages
 
     # Verify records in file have the right shape.
     out = Path(ilp_url_file.path).read_text()
@@ -172,3 +174,76 @@ basic,fruits=apple\,banana,id=1,name=foo price=0.42 1414747376000000000
 basic,fruits=pear,id=2,name=bar price=0.84 1414747378000000000
 """.lstrip()
     )
+
+
+def test_export_directory_ilp_stdout(caplog, capsys, influxdb, provision_influxdb):
+    """
+    Verify exporting data from InfluxDB data directory to lineprotocol format (ILP) on STDOUT.
+    """
+
+    if "CI" in os.environ:
+        raise pytest.skip("Needs access to InfluxDB data directory")
+
+    source_url = INFLUXDB_ENGINE_URL.format(
+        bucket_id=influxdb.bucket_id,
+        measurement=influxdb.measurement,
+    )
+    target_url = ILP_URL_STDOUT
+
+    # Transfer data.
+    result = influxio.core.copy(source_url, target_url)
+
+    # Verify execution.
+    assert f"Copying from {source_url} to {target_url}" in caplog.messages
+    assert (
+        "Exporting data to InfluxDB line protocol format (ILP): DataFormat.LINE_PROTOCOL_UNCOMPRESSED"
+        in caplog.messages
+    )
+
+    # Verify records on stdout have the right shape.
+    out, err = capsys.readouterr()
+
+    assert "exporting TSM files" in result.stderr
+    assert "exporting WAL files" in result.stderr
+    assert "export complete" in result.stderr
+
+    # Full message:
+    # detected deletes in WAL file, some deleted data may be brought back by replaying this export
+    # assert "detected deletes in WAL file" in result.stderr
+
+    assert "basic,fruits=pear,id=2,name=bar price=0.84 1414747378000000000" in out
+    assert r"basic,fruits=apple\,banana,id=1,name=foo price=0.42 1414747376000000000" in out
+
+
+def test_export_directory_ilp_file(caplog, capsys, influxdb, provision_influxdb, ilp_url_file):
+    """
+    Verify exporting data from InfluxDB data directory to lineprotocol format (ILP) into file.
+    """
+
+    if "CI" in os.environ:
+        raise pytest.skip("Needs access to InfluxDB data directory")
+
+    source_url = INFLUXDB_ENGINE_URL.format(
+        bucket_id=influxdb.bucket_id,
+        measurement=influxdb.measurement,
+    )
+    target_url = ilp_url_file
+
+    # Transfer data.
+    result = influxio.core.copy(source_url, target_url)
+
+    # Verify execution.
+    assert f"Copying from {source_url} to {target_url}" in caplog.messages
+    assert (
+        "Exporting data to InfluxDB line protocol format (ILP): DataFormat.LINE_PROTOCOL_UNCOMPRESSED"
+        in caplog.messages
+    )
+
+    assert "exporting TSM files" in result.stderr
+    assert "exporting WAL files" in result.stderr
+    assert "export complete" in result.stderr
+
+    # Verify records in output file have the right shape.
+    out = Path(ilp_url_file.path).read_text()
+    assert "basic,fruits=pear,id=2,name=bar price=0.84 1414747378000000000" in out
+    assert r"basic,fruits=apple\,banana,id=1,name=foo price=0.42 1414747376000000000" in out
