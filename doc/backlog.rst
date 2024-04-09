@@ -8,7 +8,6 @@ Iteration +1
 ************
 - [o] Add annotated CSV export/import
 - [o] Address "TODO" items
-- [o] Fix ``.from_lineprotocol``
 - [o] Tests using ``assert_dataframe_equal``? Maybe in ``cratedb-toolkit``?
 - [o] Verify documentation. ``influxio.cli.help_copy``
 - [o] More refinements
@@ -62,3 +61,4 @@ Done
 - [x] Fix documentation about crate:// target
 - [x] Check if using a CrateDB schema works well
 - [x] Release 0.1.0
+- [x] Fix ``.from_lineprotocol``

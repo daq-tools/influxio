@@ -39,10 +39,10 @@ def test_cratedb_adapter_database_table():
 def test_file_adapter_ilp_file():
     adapter = FileAdapter.from_url("file://foo.lp")
     assert adapter.output.path == "foo.lp"
-    assert adapter.output.format is DataFormat.LINE_PROTOCOL
+    assert adapter.output.format is DataFormat.LINE_PROTOCOL_UNCOMPRESSED
 
 
 def test_file_adapter_ilp_stdout():
     adapter = FileAdapter.from_url("file://-?format=lp")
     assert adapter.output.path == "-"
-    assert adapter.output.format is DataFormat.LINE_PROTOCOL
+    assert adapter.output.format is DataFormat.LINE_PROTOCOL_UNCOMPRESSED

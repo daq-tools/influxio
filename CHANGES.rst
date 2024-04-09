@@ -5,7 +5,7 @@ influxio changelog
 
 in progress
 ===========
-- Implement exporting line protocol data from InfluxDB API
+- Export data from InfluxDB API and data directory into line protocol format
 
 2024-03-22 v0.1.2
 =================

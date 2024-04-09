@@ -31,7 +31,7 @@ def jd(data: t.Any):
     print(json.dumps(data, indent=2))  # noqa: T201
 
 
-def run_command(command: str):
+def run_command(command: str) -> subprocess.CompletedProcess:
     """
     https://stackoverflow.com/a/48813330
     """
@@ -39,14 +39,15 @@ def run_command(command: str):
     cmd = shlex.split(command)
     logger.info(f"Running command: {command}")
     try:
-        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True)  # noqa: S603
+        output: subprocess.CompletedProcess = subprocess.run(cmd, check=True, capture_output=True)  # noqa: S603
     except subprocess.CalledProcessError as exc:
         logger.error(f"Command failed (exit code {exc.returncode}). The command was:\n{command}")
-        logger.error(exc.output)
+        logger.error(exc.stderr.decode("utf-8"))
         raise
     else:
         if output:
-            logger.info(f"Command output:\n{output}")
+            logger.info(f"Command stderr:\n{output.stderr.decode('utf-8')}")
+        return output
 
 
 class AutoStrEnum(str, Enum):

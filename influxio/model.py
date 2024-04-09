@@ -1,4 +1,5 @@
 import dataclasses
+import io
 import json
 import logging
 import sys
@@ -172,7 +173,11 @@ class InfluxDbAdapter:
         # print("command:", command)  # noqa: ERA001
         run_command(command)
 
-    def get_bucket_id(self):
+    @property
+    def bucket_id(self) -> str:
+        return self.get_bucket_id()
+
+    def get_bucket_id(self) -> str:
         """
         Resolve bucket name to bucket id.
         """
@@ -181,7 +186,47 @@ class InfluxDbAdapter:
             raise KeyError(f"Bucket not found: {self.bucket}")
         return bucket.id
 
-    def to_lineprotocol(self, engine_path: str, output_path: t.Union[str, Path]):
+
+@dataclasses.dataclass
+class CommandResult:
+    exitcode: int
+    stderr: str
+
+
+def url_fullpath(url: URL):
+    fullpath = url.host or ""
+    if fullpath == "-":
+        return fullpath
+    return fullpath + (url.path or "")
+
+
+def url_or_path(url: URL):
+    return url.host or url.path
+
+
+class InfluxDbEngineAdapter:
+    def __init__(self, path: t.Union[Path, str], bucket_id: str, measurement: str, debug: bool = False):
+
+        if isinstance(path, str):
+            path: Path = Path(path)
+
+        self.path = path
+        self.bucket_id = bucket_id
+        self.measurement = measurement
+        self.debug = debug
+
+    @classmethod
+    def from_url(cls, url: t.Union[URL, str], **kwargs) -> "InfluxDbEngineAdapter":
+        if isinstance(url, str):
+            url: URL = URL(url)
+        return cls(
+            path=url_fullpath(url),
+            bucket_id=url.query.get("bucket-id"),
+            measurement=url.query.get("measurement"),
+            **kwargs,
+        )
+
+    def to_lineprotocol(self, url: t.Union[URL, str]) -> CommandResult:
         """
         Export data into lineprotocol format (ILP) by invoking `influxd inspect export-lp`.
 
@@ -197,17 +242,40 @@ class InfluxDbAdapter:
 
         https://docs.influxdata.com/influxdb/v2.6/migrate-data/migrate-oss/
         """
-        logger.info("Exporting data to InfluxDB line protocol format (ILP)")
-        bucket_id = self.get_bucket_id()
+        if isinstance(url, str):
+            url: URL = URL(url)
+        format_ = DataFormat.from_url(url)
+        logger.info(f"Exporting data to InfluxDB line protocol format (ILP): {format_}")
         command = f"""
         influxd inspect export-lp \
-            --engine-path '{engine_path}' \
-            --bucket-id '{bucket_id}' \
+            --engine-path '{self.path}' \
+            --bucket-id '{self.bucket_id}' \
             --measurement '{self.measurement}' \
-            --output-path '{output_path}' \
-            --compress
+            --output-path '{url_fullpath(url)}'
+        """.rstrip()
+        if format_ is DataFormat.LINE_PROTOCOL_COMPRESSED:
+            command += " --compress"
+        out = run_command(command)
+
+        stderr = out.stderr.decode("utf-8")
+
+        # Decode output of `influxd inspect export-lp`.
         """
-        run_command(command)
+        {"level":"info","ts":1712536769.359062,"caller":"export_lp/export_lp.go:219","msg":"exporting TSM files","tsm_dir":"var/lib/influxdb2/engine/data/372d1908eab801a6","file_count":3}
+        {"level":"info","ts":1712536769.3782709,"caller":"export_lp/export_lp.go:315","msg":"exporting WAL files","wal_dir":"var/lib/influxdb2/engine/wal/372d1908eab801a6","file_count":3}
+        {"level":"info","ts":1712536769.3783438,"caller":"export_lp/export_lp.go:204","msg":"export complete"}
+        """  # noqa: E501
+        if format_ in [DataFormat.LINE_PROTOCOL_UNCOMPRESSED, DataFormat.LINE_PROTOCOL_COMPRESSED]:
+            report = pd.read_json(path_or_buf=io.StringIO(stderr), lines=True).to_dict(orient="records")
+            tsm_file_count = report[0]["file_count"]
+            wal_file_count = report[1]["file_count"]
+            if tsm_file_count == 0 and wal_file_count == 0:
+                raise FileNotFoundError(r"Export yielded zero records")
+        else:
+            raise NotImplementedError(f"Format is not supported: {format_}")
+        if out.stdout:
+            sys.stdout.buffer.write(out.stdout)
+        return CommandResult(stderr=stderr, exitcode=out.returncode)
 
 
 def decode_database_table(url: URL):
@@ -316,13 +384,17 @@ class DataFormat(AutoStrEnum):
     Manage data formats implemented by `FileAdapter`.
     """
 
-    LINE_PROTOCOL = auto()
+    LINE_PROTOCOL_UNCOMPRESSED = auto()
+    LINE_PROTOCOL_COMPRESSED = auto()
     ANNOTATED_CSV = auto()
 
     @classmethod
     def from_name(cls, path: str) -> "DataFormat":
+        path = path.rstrip("/")
         if path.endswith(".lp"):
-            return cls.LINE_PROTOCOL
+            return cls.LINE_PROTOCOL_UNCOMPRESSED
+        elif path.endswith(".lp.gz"):
+            return cls.LINE_PROTOCOL_COMPRESSED
         elif path.endswith(".csv"):
             return cls.ANNOTATED_CSV
         else:
@@ -334,13 +406,15 @@ class DataFormat(AutoStrEnum):
             url: URL = URL(url)
         if format_ := url.query.get("format"):
             if format_ == "lp":
-                return cls.LINE_PROTOCOL
+                return cls.LINE_PROTOCOL_UNCOMPRESSED
+            elif format_ == "lp.gz":
+                return cls.LINE_PROTOCOL_COMPRESSED
             elif format_ == "csv":
                 return cls.ANNOTATED_CSV
             else:
                 raise NotImplementedError(f"Invalid data format: {format_}")
         try:
-            return cls.from_name(url.host or url.path)
+            return cls.from_name(url_fullpath(url))
         except ValueError as ex:
             raise ValueError(f"Unable to derive data format from URL filename or query parameter: {url}") from ex
 
@@ -359,7 +433,7 @@ class OutputFile:
         if isinstance(url, str):
             url: URL = URL(url)
         if url.scheme == "file":
-            return cls(path=url.host or url.path, format=DataFormat.from_url(url))
+            return cls(path=url_or_path(url), format=DataFormat.from_url(url))
         else:
             raise NotImplementedError(f"Unknown file output scheme: {url.scheme}")
 
@@ -397,7 +471,7 @@ class FileAdapter:
         """
         logger.info(f"Exporting dataframes in {self.output.format.value} format to {self.output.path}")
         generators = []
-        if self.output.format is DataFormat.LINE_PROTOCOL:
+        if self.output.format is DataFormat.LINE_PROTOCOL_UNCOMPRESSED:
             if isinstance(source, InfluxDbAdapter):
                 for df in source.read_df():
                     generators.append(dataframe_to_lineprotocol(df, progress=self.progress))

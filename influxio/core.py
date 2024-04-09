@@ -1,15 +1,16 @@
 import logging
+import typing as t
 from pathlib import Path
 
 from yarl import URL
 
-from influxio.model import FileAdapter, InfluxDbAdapter, SqlAlchemyAdapter
+from influxio.model import CommandResult, FileAdapter, InfluxDbAdapter, InfluxDbEngineAdapter, SqlAlchemyAdapter
 from influxio.util.db import get_sqlalchemy_dialects
 
 logger = logging.getLogger(__name__)
 
 
-def copy(source: str, target: str, progress: bool = False):
+def copy(source: str, target: str, progress: bool = False) -> t.Union[CommandResult, None]:
     """
     Copy/transfer data from/to InfluxDB API / InfluxDB line protocol / RDBMS.
 
@@ -59,10 +60,23 @@ def copy(source: str, target: str, progress: bool = False):
         sink.write_df(df)
 
     elif source_url.scheme == "file":
-        path = Path(source_url.host).joinpath(Path(source_url.path).relative_to("/"))
-        # TODO: Determine file type by suffix.
-        # TODO: Make `precision` configurable.
-        sink.from_lineprotocol(path)
+
+        # Export
+        if target_url.scheme == "file":
+            path = source_url.host + source_url.path
+            source_path_dir = [path.name for path in Path(path).iterdir()]
+            if "data" in source_path_dir and "wal" in source_path_dir:
+                source_element = InfluxDbEngineAdapter.from_url(source)
+                return source_element.to_lineprotocol(url=target_url)
+            else:
+                raise NotImplementedError(f"Data source not implemented: {source_url}")
+
+        # Import
+        else:
+            path = Path(source_url.host).joinpath(Path(source_url.path).relative_to("/"))
+            # TODO: Determine file type by suffix.
+            # TODO: Make `precision` configurable.
+            sink.from_lineprotocol(path)
 
     elif source_url.scheme.startswith("http"):
         if isinstance(sink, (FileAdapter, SqlAlchemyAdapter)):
@@ -73,3 +87,5 @@ def copy(source: str, target: str, progress: bool = False):
 
     else:
         raise NotImplementedError(f"Data source not implemented: {source_url}")
+
+    return None
