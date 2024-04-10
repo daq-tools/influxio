@@ -252,7 +252,7 @@ class InfluxDbEngineAdapter:
             tsm_file_count = report[0]["file_count"]
             wal_file_count = report[1]["file_count"]
             if tsm_file_count == 0 and wal_file_count == 0:
-                raise FileNotFoundError(r"Export yielded zero records")
+                raise FileNotFoundError(r"Export yielded zero records. Make sure to use a valid bucket-id.")
         else:
             raise NotImplementedError(f"Format is not supported: {format_}")
         if out.stdout:

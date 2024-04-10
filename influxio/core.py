@@ -6,6 +6,7 @@ from yarl import URL
 
 from influxio.adapter import FileAdapter, InfluxDbApiAdapter, InfluxDbEngineAdapter, SqlAlchemyAdapter
 from influxio.model import CommandResult
+from influxio.util.common import url_fullpath
 from influxio.util.db import get_sqlalchemy_dialects
 
 logger = logging.getLogger(__name__)
@@ -64,7 +65,7 @@ def copy(source: str, target: str, progress: bool = False) -> t.Union[CommandRes
 
         # Export
         if target_url.scheme == "file":
-            path = source_url.host + source_url.path
+            path = url_fullpath(source_url)
             source_path_dir = [path.name for path in Path(path).iterdir()]
             if "data" in source_path_dir and "wal" in source_path_dir:
                 source_element = InfluxDbEngineAdapter.from_url(source)

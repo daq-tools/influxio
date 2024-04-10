@@ -69,7 +69,8 @@ def url_fullpath(url: URL):
     fullpath = url.host or ""
     if fullpath == "-":
         return fullpath
-    return fullpath + (url.path or "")
+    fullpath += url.path or ""
+    return fullpath.rstrip("/")
 
 
 def url_or_path(url: URL):
