@@ -6,13 +6,21 @@ influxio backlog
 ************
 Iteration +1
 ************
-- [o] Demonstrate "library use" in README
+- [o] README: Demonstrate "library use"
+- [o] README: Caveat about overwrite protection
+- [o] README: How to export from data directory using Docker?
+- [o] README: Add examples using InfluxDB Cloud
+- [o] README: Caveat when exporting unknown measurement from data directory:
+  It can not be detected.
+- [o] README: Inform about ``--verbose`` flag
 - [o] Publish documentation on RTD
 - [o] Add annotated CSV export/import
 - [o] Address "TODO" items
-- [o] Tests using ``assert_dataframe_equal``? Maybe in ``cratedb-toolkit``?
 - [o] Verify documentation. ``influxio.cli.help_copy``
 - [o] More refinements
+- [o] ``list-buckets`` subcommand, for both API and data directory
+- [o] Progress bars for non-Dask tasks
+- [o] Verbose by default?
 
 
 ************
@@ -20,11 +28,11 @@ Iteration +2
 ************
 - [o] Fix ``cratedb_toolkit.sqlalchemy.patch_inspector()`` re. reflection of ``?schema=`` URL parameter
 - [o] Fix ``crate.client.sqlalchemy.dialect.DateTime`` re. ``TimezoneUnawareException``
-- [o] Verify connecting to InfluxDB Cloud works well
 - [o] Support InfluxDB 1.x
 - [o] Add Docker Compose file for auxiliary services
 - [o] Refactor general purpose code to ``pueblo`` package
 - [o] Verify import and export of ILP and CSV files works well
+- [o] Tests using ``assert_dataframe_equal``? Maybe in ``cratedb-toolkit``?
 
 
 ************
