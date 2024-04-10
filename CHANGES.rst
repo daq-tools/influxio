@@ -5,6 +5,9 @@ influxio changelog
 
 in progress
 ===========
+
+2024-04-10 v0.2.0
+=================
 - Export data from InfluxDB API and data directory into line protocol format
 
 2024-03-22 v0.1.2
