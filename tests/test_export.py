@@ -247,3 +247,33 @@ def test_export_directory_ilp_file(caplog, capsys, influxdb, provision_influxdb,
     out = Path(ilp_url_file.path).read_text()
     assert "basic,fruits=pear,id=2,name=bar price=0.84 1414747378000000000" in out
     assert r"basic,fruits=apple\,banana,id=1,name=foo price=0.42 1414747376000000000" in out
+
+
+def test_export_directory_fail_wrong_path(tmp_path):
+
+    if "CI" in os.environ:
+        raise pytest.skip("Needs access to InfluxDB data directory")
+
+    with pytest.raises(FileNotFoundError) as ex:
+        influxio.core.copy(f"file://{tmp_path}", ILP_URL_STDOUT)
+    assert ex.match(f"No InfluxDB data directory: {tmp_path}")
+
+
+def test_export_directory_fail_bucket_id_missing():
+
+    if "CI" in os.environ:
+        raise pytest.skip("Needs access to InfluxDB data directory")
+
+    with pytest.raises(ValueError) as ex:
+        influxio.core.copy("file://var/lib/influxdb2/engine", ILP_URL_STDOUT)
+    assert ex.match("Parameter missing or empty: bucket-id")
+
+
+def test_export_directory_fail_measurement_missing():
+
+    if "CI" in os.environ:
+        raise pytest.skip("Needs access to InfluxDB data directory")
+
+    with pytest.raises(ValueError) as ex:
+        influxio.core.copy("file://var/lib/influxdb2/engine?bucket-id=fc6bb114ceb3ac0b", ILP_URL_STDOUT)
+    assert ex.match("Parameter missing or empty: measurement")
