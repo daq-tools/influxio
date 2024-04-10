@@ -62,15 +62,15 @@ Synopsis
 
 .. code-block:: shell
 
-    # Export from data directory to line protocol format.
-    influxio copy \
-        "file:///path/to/data/engine?org=example&bucket=testdrive&measurement=demo" \
-        "file://export.lp"
-
     # Export from API to database.
     influxio copy \
         "http://example:token@localhost:8086/testdrive/demo" \
         "sqlite://export.sqlite?table=demo"
+
+    # Export from data directory to line protocol format.
+    influxio copy \
+        "file:///path/to/influxdb/engine?bucket-id=372d1908eab801a6&measurement=demo" \
+        "file://export.lp"
 
 
 **********
