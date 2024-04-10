@@ -48,7 +48,9 @@ def run_command(command: str) -> subprocess.CompletedProcess:
         raise
     else:
         if output:
-            logger.info(f"Command stderr:\n{output.stderr.decode('utf-8')}")
+            stderr = output.stderr.decode("utf-8")
+            if stderr:
+                logger.info(f"Command stderr:\n{stderr}")
         return output
 
 
