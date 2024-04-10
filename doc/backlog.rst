@@ -6,8 +6,6 @@ influxio backlog
 ************
 Iteration +1
 ************
-- [o] Parameters bucket-id and measurement are obligatory on data directory export
-  Verify that.
 - [o] Demonstrate "library use" in README
 - [o] Publish documentation on RTD
 - [o] Add annotated CSV export/import
@@ -66,3 +64,5 @@ Done
 - [x] Check if using a CrateDB schema works well
 - [x] Release 0.1.0
 - [x] Fix ``.from_lineprotocol``
+- [x] Parameters bucket-id and measurement are obligatory on data
+  directory export. Verify that.

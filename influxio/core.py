@@ -69,9 +69,13 @@ def copy(source: str, target: str, progress: bool = False) -> t.Union[CommandRes
             source_path_dir = [path.name for path in Path(path).iterdir()]
             if "data" in source_path_dir and "wal" in source_path_dir:
                 source_element = InfluxDbEngineAdapter.from_url(source)
+                if not source_element.bucket_id:
+                    raise ValueError("Parameter missing or empty: bucket-id")
+                if not source_element.measurement:
+                    raise ValueError("Parameter missing or empty: measurement")
                 return source_element.to_lineprotocol(url=target_url)
             else:
-                raise NotImplementedError(f"Data source not implemented: {source_url}")
+                raise FileNotFoundError(f"No InfluxDB data directory: {path}")
 
         # Import
         else:
