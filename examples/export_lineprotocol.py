@@ -45,8 +45,11 @@ def main():
     LINEPROTOCOL_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     source_url = f"file://var/lib/influxdb2/engine?bucket-id={influx.bucket_id}&measurement={influx.measurement}"
+    target_url = f"file://{LINEPROTOCOL_FILE}"
+    logger.info(f"Source: {source_url}")
+    logger.info(f"Target: {target_url}")
     influx_data = InfluxDbEngineAdapter.from_url(source_url)
-    influx_data.to_lineprotocol(url=f"file://{LINEPROTOCOL_FILE}")
+    influx_data.to_lineprotocol(target_url)
 
     logger.info("Reading back data from lineprotocol file")
     with gzip.open(LINEPROTOCOL_FILE) as buffer:
