@@ -20,7 +20,6 @@ Iteration +1
 - [o] More refinements
 - [o] ``list-buckets`` subcommand, for both API and data directory
 - [o] Progress bars for non-Dask tasks
-- [o] Verbose by default?
 
 
 ************
@@ -74,3 +73,4 @@ Done
 - [x] Fix ``.from_lineprotocol``
 - [x] Parameters bucket-id and measurement are obligatory on data
   directory export. Verify that.
+- [x] Be ``--verbose`` by default
