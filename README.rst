@@ -39,6 +39,26 @@ influxio
 .. end-badges
 
 
+.. start-links
+
+» `Documentation <project-documentation_>`_
+| `Changelog <project-changelog_>`_
+| `PyPI <project-pypi_>`_
+| `Issues <project-issues_>`_
+| `Source code <project-source_>`_
+| `License <project-license_>`_
+
+.. end-links
+
+
+.. _project-documentation: https://influxio.readthedocs.io
+.. _project-changelog: https://github.com/daq-tools/influxio/blob/main/CHANGES.rst
+.. _project-pypi: https://pypi.org/project/influxio/
+.. _project-issues: https://github.com/daq-tools/influxio/issues
+.. _project-source: https://github.com/daq-tools/influxio
+.. _project-license: https://github.com/daq-tools/influxio/blob/main/LICENSE
+
+
 *****
 About
 *****
