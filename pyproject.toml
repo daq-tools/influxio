@@ -62,12 +62,20 @@ classifiers = [
   "Topic :: Database",
   "Topic :: Documentation",
   "Topic :: Education",
+  "Topic :: File Formats",
   "Topic :: Office/Business",
   "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Human Machine Interfaces",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator",
   "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: Testing",
   "Topic :: Software Development :: Version Control",
   "Topic :: System :: Archiving",
+  "Topic :: System :: Logging",
+  "Topic :: System :: Monitoring",
+  "Topic :: System :: Networking",
+  "Topic :: System :: Recovery Tools",
   "Topic :: System :: Systems Administration",
   "Topic :: Text Processing",
   "Topic :: Utilities",
@@ -98,7 +106,17 @@ develop = [
   "poethepoet<0.27",
   "pyproject-fmt<1.9",
   "ruff<0.5",
+  "sphinx-autobuild==2021.3.14", # Newer versions stopped "watching" appropriately?
   "validate-pyproject<0.17",
+]
+docs = [
+  "furo",
+  "myst-parser[linkify]<3,>=0.18",
+  "sphinx<7",
+  "sphinx-copybutton",
+  "sphinx-design-elements<1",
+  "sphinxcontrib-mermaid<1",
+  "sphinxext-opengraph<1",
 ]
 release = [
   "build<2",
@@ -196,6 +214,7 @@ lint.extend-ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+"doc/conf.py" = ["A001", "ERA001"]
 "tests/*" = ["S101"]  # Use of `assert` detected
 "influxio/util/report.py" = ["T201"]
 
@@ -212,6 +231,16 @@ namespaces = false
 check = [
   "lint",
   "test",
+]
+
+docs-autobuild = [
+  { cmd = "sphinx-autobuild --open-browser --watch influxio doc doc/_build" }
+]
+docs-html = [
+  { cmd = "sphinx-build -W --keep-going doc doc/_build" }
+]
+docs-linkcheck = [
+  { cmd = "sphinx-build -W --keep-going -b linkcheck doc doc/_build" }
 ]
 
 format = [

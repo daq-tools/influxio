@@ -1,6 +1,6 @@
-################
-influxio backlog
-################
+#######
+Backlog
+#######
 
 
 ************
@@ -27,7 +27,7 @@ Iteration +2
 ************
 - [o] Fix ``cratedb_toolkit.sqlalchemy.patch_inspector()`` re. reflection of ``?schema=`` URL parameter
 - [o] Fix ``crate.client.sqlalchemy.dialect.DateTime`` re. ``TimezoneUnawareException``
-- [o] Support InfluxDB 1.x
+- [o] Support InfluxDB 1.x and 3.x
 - [o] Add Docker Compose file for auxiliary services
 - [o] Refactor general purpose code to ``pueblo`` package
 - [o] Verify import and export of ILP and CSV files works well
