@@ -32,6 +32,8 @@ Iteration +2
 - [o] Refactor general purpose code to ``pueblo`` package
 - [o] Verify import and export of ILP and CSV files works well
 - [o] Tests using ``assert_dataframe_equal``? Maybe in ``cratedb-toolkit``?
+- [o] fluXpipe adapter
+  https://github.com/crate/crate-clients-tools/issues/94
 
 
 ************
