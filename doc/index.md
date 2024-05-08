@@ -29,13 +29,16 @@ Import and export data into/from InfluxDB, for humans and machines.
 - **Capable:** Connect to the InfluxDB HTTP API, or read from an InfluxDB
   TSM data directory directly.
 
-- **Versatile:** Use it as a command-line program, pipeline element,
-  or as a library within your own applications.
+- **Concise:** All features are available through a single powerful primitive,
+  `influxio copy`.
 
 - **Polyglot:** Support I/O operations between InfluxDB, any SQL database
   supported by SQLAlchemy, file formats supported by pandas/Dask, and
   the native InfluxDB line protocol (ILP), on both import and export
   directions.
+
+- **Versatile:** Use it as a command-line program, pipeline element,
+  or as a library within your own applications.
 
 
 ## Synopsis
