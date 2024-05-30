@@ -211,6 +211,19 @@ Export from API
         "http://example:token@localhost:8086/testdrive/demo" \
         "file://-?format=lp"
 
+Export from Cloud to Cloud
+--------------------------
+
+.. code-block:: shell
+
+    # From InfluxDB Cloud to CrateDB Cloud.
+    influxio copy \
+        "https://8e9ec869a91a3517:T268DVLDHD8AJsjzOEluu...Pic4A==@eu-central-1-1.aws.cloud2.influxdata.com/testdrive/demo" \
+        "crate://admin:dZ,Y18*Z...7)6LqB@green-shaak-ti.eks1.eu-west-1.aws.cratedb.net:4200/testdrive/demo?ssl=true"
+
+    crash \
+        --hosts 'https://admin:dZ,Y18*Z...7)6LqB@green-shaak-ti.eks1.eu-west-1.aws.cratedb.net:4200' \
+        --command 'SELECT * FROM testdrive.demo;'
 
 Export from data directory
 --------------------------

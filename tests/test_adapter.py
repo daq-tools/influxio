@@ -16,6 +16,13 @@ def test_cratedb_adapter_universal_notation():
     assert adapter.dburi == "crate://localhost:4200/?schema=testdrive"
 
 
+def test_cratedb_adapter_with_ssl():
+    adapter = SqlAlchemyAdapter.from_url("crate://localhost:4200/testdrive/basic?ssl=true")
+    assert adapter.database == "testdrive"
+    assert adapter.table == "basic"
+    assert adapter.dburi == "crate://localhost:4200/?schema=testdrive&ssl=true"
+
+
 def test_cratedb_adapter_table():
     adapter = SqlAlchemyAdapter.from_url("crate://localhost:4200/?table=basic")
     assert adapter.database is None

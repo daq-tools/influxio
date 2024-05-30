@@ -276,9 +276,14 @@ class SqlAlchemyAdapter:
         # Special handling for SQLite and CrateDB databases.
         self.dburi = str(url.with_query(None))
         if url.scheme == "crate":
+            query_args_passthrough = ["ssl"]
+            query = url.query
             url = url.with_path("")
             if self.database:
-                url = url.with_query({"schema": self.database})
+                url = url.update_query({"schema": self.database})
+                for arg in query_args_passthrough:
+                    if arg in query:
+                        url = url.update_query({arg: query[arg]})
             self.dburi = str(url)
         elif url.scheme == "sqlite":
             self.dburi = self.dburi.replace("sqlite:/", "sqlite:///")
