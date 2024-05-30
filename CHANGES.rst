@@ -5,6 +5,9 @@ Changelog
 
 in progress
 ===========
+
+2024-05-30 v0.2.1
+=================
 - Fix CrateDB Cloud connectivity by propagating ``ssl=true`` query argument
 
 2024-04-10 v0.2.0
