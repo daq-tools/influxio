@@ -86,7 +86,6 @@ dynamic = [
 dependencies = [
   "click<9",
   "colorama<1",
-  "crate[sqlalchemy]",
   "cratedb-toolkit",
   "dask[dataframe]>=2020",
   'importlib-metadata; python_version <= "3.9"',
@@ -96,6 +95,7 @@ dependencies = [
   "pandas<2.3",
   "psycopg2-binary<3",
   "pueblo>=0.0.7",
+  "sqlalchemy-cratedb",
   "SQLAlchemy-Utils<0.42",
   "yarl<2",
 ]

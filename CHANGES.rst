@@ -5,6 +5,7 @@ Changelog
 
 in progress
 ===========
+- Dependencies: Migrate from ``crate[sqlalchemy]`` to ``sqlalchemy-cratedb``
 
 2024-05-30 v0.2.1
 =================

@@ -125,7 +125,10 @@ def dataframe_to_sql(
         patch_inspector()
 
         # Use performance INSERT method.
-        from crate.client.sqlalchemy.support import insert_bulk
+        try:
+            from sqlalchemy_cratedb.support import insert_bulk
+        except ImportError:  # pragma: nocover
+            from crate.client.sqlalchemy.support import insert_bulk
 
         method = insert_bulk
     else:
