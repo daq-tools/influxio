@@ -5,6 +5,8 @@ Changelog
 
 in progress
 ===========
+- SQLAlchemy Dialect: Dependencies: Use `sqlalchemy-cratedb>=0.37.0`
+  This includes the fix to the `get_table_names()` reflection method.
 
 2024-06-11 v0.3.0
 =================
