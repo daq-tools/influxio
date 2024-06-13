@@ -119,10 +119,6 @@ def dataframe_to_sql(
         pbar.register()
 
     if dburi.startswith("crate"):
-        # TODO: Submit patch to upstream `crate-python`. This is another proof that something is wrong.
-        from cratedb_toolkit.sqlalchemy import patch_inspector
-
-        patch_inspector()
 
         # Use performance INSERT method.
         try:
