@@ -243,7 +243,7 @@ Export from data directory
     # From InfluxDB data directory to line protocol on stdout.
     influxio copy \
         "file:///path/to/influxdb/engine?bucket-id=372d1908eab801a6&measurement=demo" \
-        ""file://-?format=lp"
+        "file://-?format=lp"
 
 
 OCI
