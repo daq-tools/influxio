@@ -21,7 +21,9 @@ def influxdb() -> InfluxDbApiAdapter:
 
 @pytest.fixture
 def cratedb() -> SqlAlchemyAdapter:
-    return SqlAlchemyAdapter.from_url(CRATEDB_URL)
+    adapter = SqlAlchemyAdapter.from_url(CRATEDB_URL)
+    adapter.run_sql("DROP TABLE IF EXISTS basic")
+    return adapter
 
 
 @pytest.fixture
@@ -63,9 +65,9 @@ def provision_influxdb(influxdb, line_protocol_file_basic):
     influxio.core.copy(source_url, target_url)
 
 
-def test_export_cratedb(caplog, influxdb, provision_influxdb, cratedb):
+def test_export_cratedb_default(caplog, influxdb, provision_influxdb, cratedb):
     """
-    Export data from InfluxDB to CrateDB.
+    Export data from InfluxDB to CrateDB, happy path.
     """
 
     source_url = INFLUXDB_API_URL
@@ -82,6 +84,78 @@ def test_export_cratedb(caplog, influxdb, provision_influxdb, cratedb):
     cratedb.refresh_table()
     records = cratedb.read_records()
     assert len(records) == 2
+
+
+def test_export_cratedb_fail_if_target_exists(caplog, influxdb, provision_influxdb, cratedb):
+    """
+    Exporting data from InfluxDB to CrateDB should fail if target table exists.
+    """
+
+    source_url = INFLUXDB_API_URL
+    target_url = CRATEDB_URL
+
+    # Create a table that will cause the export process to fail.
+    cratedb.run_sql("CREATE TABLE basic (foo INT)")
+
+    # Transfer data.
+    with pytest.raises(ValueError) as ex:
+        influxio.core.copy(source_url, target_url)
+    ex.match("Table 'basic' already exists.")
+
+
+def test_export_cratedb_if_exists_unknown(caplog, influxdb, provision_influxdb, cratedb):
+    """
+    Exporting data from InfluxDB to CrateDB should fail if target table exists.
+    """
+
+    source_url = INFLUXDB_API_URL
+    target_url = CRATEDB_URL + "?if-exists=Hotzenplotz"
+
+    # Create a table that will cause the export process to fail.
+    cratedb.run_sql("CREATE TABLE basic (foo INT)")
+
+    # Transfer data.
+    with pytest.raises(ValueError) as ex:
+        influxio.core.copy(source_url, target_url)
+    ex.match("'Hotzenplotz' is not valid for if_exists")
+
+
+def test_export_cratedb_if_exists_replace(caplog, influxdb, provision_influxdb, cratedb):
+    """
+    Exporting data from InfluxDB to CrateDB will succeed with ``if-exists=replace``.
+    """
+
+    source_url = INFLUXDB_API_URL
+    target_url = CRATEDB_URL + "?if-exists=replace"
+
+    # Create a table that would cause the export process to fail.
+    cratedb.run_sql("CREATE TABLE basic (foo INT)")
+
+    # Transfer data.
+    influxio.core.copy(source_url, target_url)
+
+    # Verify number of records in target database.
+    cratedb.refresh_table()
+    records = cratedb.read_records()
+    assert len(records) == 2
+
+
+def test_export_cratedb_if_exists_append(caplog, influxdb, provision_influxdb, cratedb):
+    """
+    Exporting data from InfluxDB to CrateDB twice will succeed with ``if-exists=append``.
+    """
+
+    source_url = INFLUXDB_API_URL
+    target_url = CRATEDB_URL + "?if-exists=append"
+
+    # Transfer data.
+    influxio.core.copy(source_url, target_url)
+    influxio.core.copy(source_url, target_url)
+
+    # Verify number of records in target database.
+    cratedb.refresh_table()
+    records = cratedb.read_records()
+    assert len(records) == 4
 
 
 def test_export_postgresql(caplog, influxdb, provision_influxdb, postgresql):

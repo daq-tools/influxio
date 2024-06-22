@@ -287,6 +287,29 @@ keystrokes on subsequent invocations.
     influxio copy "${SOURCE}" "${TARGET}"
 
 
+Parameters
+==========
+
+``if-exists``
+-------------
+When targeting the SQLAlchemy database interface, the target table will be
+created automatically, if it does not exist. The ``if-exists`` URL query
+parameter can be used to configure this behavior. The default value is
+``fail``.
+
+* fail: Raise a ValueError.
+* replace: Drop the table before inserting new values.
+* append: Insert new values to the existing table.
+
+Example usage:
+
+.. code-block:: shell
+
+    influxio copy \
+        "http://example:token@localhost:8086/testdrive/demo" \
+        "crate://crate@localhost:4200/testdrive?table=demo&if-exists=replace"
+
+
 *******************
 Project information
 *******************

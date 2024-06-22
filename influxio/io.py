@@ -97,7 +97,7 @@ def dataframe_to_sql(
     tablename: str,
     index=False,
     chunksize=None,
-    if_exists="replace",
+    if_exists="fail",
     npartitions: int = None,
     progress: bool = False,
 ):
@@ -105,10 +105,18 @@ def dataframe_to_sql(
     Load pandas dataframe into database using Dask.
 
     https://stackoverflow.com/questions/62404502/using-dasks-new-to-sql-for-improved-efficiency-memory-speed-or-alternative-to
+
+    if_exists : {'fail', 'replace', 'append'}, default 'fail'
+        How to behave if the table already exists.
+
+        * fail: Raise a ValueError.
+        * replace: Drop the table before inserting new values.
+        * append: Insert new values to the existing table.
     """
     import dask.dataframe as dd
 
     # Set a few defaults.
+    if_exists = if_exists or "fail"
     chunksize = chunksize or 5_000
     npartitions = npartitions or int(os.cpu_count() / 2)
 

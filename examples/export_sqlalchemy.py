@@ -41,7 +41,7 @@ def main():
     logger.info("Transferring data")
     for df in influx.read_df():
         logger.info("Loading data frame into RDBMS/SQL database using pandas/Dask")
-        dataframe_to_sql(df, dburi=DBURI, tablename="demo", progress=True)
+        dataframe_to_sql(df, dburi=DBURI, tablename="demo", if_exists="replace", progress=True)
 
     # Read back data from target database.
     logger.info("Reading back data from the target database")
