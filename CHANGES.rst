@@ -5,6 +5,8 @@ Changelog
 
 in progress
 ===========
+- Dask interface: Accept and forward the new ``if-exists`` URL query
+  parameter to Dask's ``to_sql()`` method.
 
 2024-06-13 v0.3.1
 =================

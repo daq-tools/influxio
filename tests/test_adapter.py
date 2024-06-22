@@ -42,6 +42,15 @@ def test_cratedb_adapter_database_table():
     assert adapter.database == "testdrive"
     assert adapter.table == "basic"
     assert adapter.dburi == "crate://localhost:4200/?schema=testdrive"
+    assert adapter.if_exists is None
+
+
+def test_cratedb_adapter_if_exists():
+    adapter = SqlAlchemyAdapter.from_url("crate://localhost:4200/?database=testdrive&table=basic&if-exists=append")
+    assert adapter.database == "testdrive"
+    assert adapter.table == "basic"
+    assert adapter.dburi == "crate://localhost:4200/?schema=testdrive"
+    assert adapter.if_exists == "append"
 
 
 def test_file_adapter_ilp_file():

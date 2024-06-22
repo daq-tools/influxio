@@ -271,7 +271,8 @@ class SqlAlchemyAdapter:
         if isinstance(url, str):
             url: URL = URL(url)
 
-        self.database, self.table = SqlAlchemyAdapter.decode_database_table(url)
+        self.database, self.table = self.decode_database_table(url)
+        self.if_exists = url.query.get("if-exists")
 
         # Special handling for SQLite and CrateDB databases.
         self.dburi = str(url.with_query(None))
@@ -301,9 +302,13 @@ class SqlAlchemyAdapter:
         logger.info("Loading dataframes into RDBMS/SQL database using pandas/Dask")
         if isinstance(source, InfluxDbApiAdapter):
             for df in source.read_df():
-                dataframe_to_sql(df, dburi=self.dburi, tablename=self.table, progress=self.progress)
+                dataframe_to_sql(
+                    df, dburi=self.dburi, tablename=self.table, if_exists=self.if_exists, progress=self.progress
+                )
         elif isinstance(source, pd.DataFrame):
-            dataframe_to_sql(source, dburi=self.dburi, tablename=self.table, progress=self.progress)
+            dataframe_to_sql(
+                source, dburi=self.dburi, tablename=self.table, if_exists=self.if_exists, progress=self.progress
+            )
         else:
             raise NotImplementedError(f"Failed handling source: {source}")
 
@@ -329,13 +334,15 @@ class SqlAlchemyAdapter:
     def run_sql(self, sql: str):
         engine = sa.create_engine(self.dburi)
         with engine.connect() as connection:
-            connection.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+            if hasattr(connection.connection, "set_isolation_level"):
+                connection.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             return connection.execute(sa.text(sql))
 
     def run_sql_raw(self, sql: str):
         engine = sa.create_engine(self.dburi)
         connection = engine.raw_connection()
-        connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        if hasattr(connection, "set_isolation_level"):
+            connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         cursor = connection.cursor()
         cursor.execute(sql)
         result = cursor.fetchall()
