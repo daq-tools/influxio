@@ -24,8 +24,8 @@ def run_program(command: t.List[str]):
     """
     Run a program, connecting stdout and stderr streams with the current ones.
     """
-    return subprocess.check_call(
-        command,  # noqa: S603
+    return subprocess.check_call(  # noqa: S603
+        command,
         stdout=sys.stdout.buffer,
         stderr=sys.stderr.buffer,
     )
