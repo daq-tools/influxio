@@ -5,10 +5,6 @@ requires = [
   "versioningit",
 ]
 
-[tool.versioningit.vcs]
-method = "git"
-default-tag = "0.0.0"
-
 [project]
 name = "influxio"
 description = "Import and export data into/from InfluxDB"
@@ -88,8 +84,8 @@ dependencies = [
   "colorama<1",
   "cratedb-toolkit",
   "dask[dataframe]>=2020",
-  'importlib-metadata; python_version <= "3.9"',
   "fsspec[s3,http]",
+  "importlib-metadata; python_version<='3.9'",
   "influx-line==1.0.0",
   "influxdb-client[ciso]<2",
   "line-protocol-parser<2",
@@ -97,12 +93,11 @@ dependencies = [
   "psycopg2-binary<3",
   "pueblo>=0.0.7",
   "sqlalchemy-cratedb>=0.37,<1",
-  "SQLAlchemy-Utils<0.42",
+  "sqlalchemy-utils<0.42",
   "universal-pathlib<0.3",
   "yarl<2",
 ]
-[project.optional-dependencies]
-develop = [
+optional-dependencies.develop = [
   "black<25",
   "mypy<1.12",
   "poethepoet<0.29",
@@ -111,7 +106,7 @@ develop = [
   "sphinx-autobuild==2021.3.14", # Newer versions stopped "watching" appropriately?
   "validate-pyproject<0.20",
 ]
-docs = [
+optional-dependencies.docs = [
   "furo",
   "myst-parser[linkify]>=0.18,<5",
   "sphinx<9",
@@ -120,42 +115,75 @@ docs = [
   "sphinxcontrib-mermaid<1",
   "sphinxext-opengraph<1",
 ]
-release = [
+optional-dependencies.release = [
   "build<2",
   "twine<6",
 ]
-test = [
+optional-dependencies.test = [
   "pytest<9",
   "pytest-cov<6",
 ]
-[project.urls]
-changelog = "https://github.com/daq-tools/influxio/blob/main/CHANGES.rst"
-documentation = "https://github.com/daq-tools/influxio"
-homepage = "https://github.com/daq-tools/influxio"
-repository = "https://github.com/daq-tools/influxio"
-[project.scripts]
-influxio = "influxio.cli:cli"
+urls.changelog = "https://github.com/daq-tools/influxio/blob/main/CHANGES.rst"
+urls.documentation = "https://github.com/daq-tools/influxio"
+urls.homepage = "https://github.com/daq-tools/influxio"
+urls.repository = "https://github.com/daq-tools/influxio"
+scripts.influxio = "influxio.cli:cli"
+
+[tool.setuptools.packages.find]
+namespaces = false
+
+# ===================
+# Tasks configuration
+# ===================
 
 [tool.black]
 line-length = 120
 
-[tool.coverage.run]
-branch = false
-omit = [
-  "tests/*",
+[tool.ruff]
+line-length = 120
+
+lint.select = [
+  # Builtins
+  "A",
+  # Bugbear
+  "B",
+  # comprehensions
+  "C4",
+  # Pycodestyle
+  "E",
+  # eradicate
+  "ERA",
+  # Pyflakes
+  "F",
+  # isort
+  "I",
+  # pandas-vet
+  "PD",
+  # return
+  "RET",
+  # Bandit
+  "S",
+  # print
+  "T20",
+  "W",
+  # flake8-2020
+  "YTT",
 ]
-source = ["influxio"]
 
-[tool.coverage.report]
-fail_under = 0
-show_missing = true
+lint.extend-ignore = [
+  # zip() without an explicit strict= parameter
+  "B905",
+  # df is a bad variable name. Be kinder to your future self.
+  "PD901",
+  # Unnecessary variable assignment before `return` statement
+  "RET504",
+  # Unnecessary `elif` after `return` statement
+  "RET505",
+]
 
-[tool.mypy]
-packages = ["influxio"]
-install_types = true
-ignore_missing_imports = true
-implicit_optional = true
-non_interactive = true
+lint.per-file-ignores."doc/conf.py" = [ "A001", "ERA001" ]
+lint.per-file-ignores."influxio/util/report.py" = [ "T201" ]
+lint.per-file-ignores."tests/*" = [ "S101" ]                 # Use of `assert` detected
 
 [tool.pytest.ini_options]
 addopts = "-rA --verbosity=3 --cov --cov-report=term-missing --cov-report=xml"
@@ -173,60 +201,27 @@ markers = [
   "slow",
 ]
 
-[tool.ruff]
-line-length = 120
-
-lint.select = [
-  # Bandit
-  "S",
-  # Bugbear
-  "B",
-  # Builtins
-  "A",
-  # comprehensions
-  "C4",
-  # eradicate
-  "ERA",
-  # flake8-2020
-  "YTT",
-  # isort
-  "I",
-  # pandas-vet
-  "PD",
-  # print
-  "T20",
-  # Pycodestyle
-  "E",
-  "W",
-  # Pyflakes
-  "F",
-  # return
-  "RET",
+[tool.coverage.run]
+branch = false
+omit = [
+  "tests/*",
 ]
+source = [ "influxio" ]
 
-lint.extend-ignore = [
-  # zip() without an explicit strict= parameter
-  "B905",
-  # df is a bad variable name. Be kinder to your future self.
-  "PD901",
-  # Unnecessary variable assignment before `return` statement
-  "RET504",
-  # Unnecessary `elif` after `return` statement
-  "RET505",
-]
+[tool.coverage.report]
+fail_under = 0
+show_missing = true
 
-[tool.ruff.lint.per-file-ignores]
-"doc/conf.py" = ["A001", "ERA001"]
-"tests/*" = ["S101"]  # Use of `assert` detected
-"influxio/util/report.py" = ["T201"]
+[tool.mypy]
+packages = [ "influxio" ]
+install_types = true
+ignore_missing_imports = true
+implicit_optional = true
+non_interactive = true
 
-[tool.setuptools.packages.find]
-namespaces = false
-
-
-# ===================
-# Tasks configuration
-# ===================
+[tool.versioningit.vcs]
+method = "git"
+default-tag = "0.0.0"
 
 [tool.poe.tasks]
 
@@ -236,13 +231,13 @@ check = [
 ]
 
 docs-autobuild = [
-  { cmd = "sphinx-autobuild --open-browser --watch influxio doc doc/_build" }
+  { cmd = "sphinx-autobuild --open-browser --watch influxio doc doc/_build" },
 ]
 docs-html = [
-  { cmd = "sphinx-build -W --keep-going doc doc/_build" }
+  { cmd = "sphinx-build -W --keep-going doc doc/_build" },
 ]
 docs-linkcheck = [
-  { cmd = "sphinx-build -W --keep-going -b linkcheck doc doc/_build" }
+  { cmd = "sphinx-build -W --keep-going -b linkcheck doc doc/_build" },
 ]
 
 format = [
