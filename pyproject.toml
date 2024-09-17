@@ -89,6 +89,7 @@ dependencies = [
   "cratedb-toolkit",
   "dask[dataframe]>=2020",
   'importlib-metadata; python_version <= "3.9"',
+  "fsspec[s3,http]",
   "influx-line==1.0.0",
   "influxdb-client[ciso]<2",
   "line-protocol-parser<2",
@@ -97,6 +98,7 @@ dependencies = [
   "pueblo>=0.0.7",
   "sqlalchemy-cratedb>=0.37,<1",
   "SQLAlchemy-Utils<0.42",
+  "universal-pathlib<0.3",
   "yarl<2",
 ]
 [project.optional-dependencies]

@@ -85,11 +85,13 @@ def copy(source: str, target: str, progress: bool = False) -> t.Union[CommandRes
             sink.from_lineprotocol(path)
 
     elif source_url.scheme.startswith("http"):
-        if isinstance(sink, (FileAdapter, SqlAlchemyAdapter)):
+        # TODO: Improve dispatching.
+        source_url_str = str(source_url)
+        if isinstance(sink, (FileAdapter, SqlAlchemyAdapter)) and ".lp" not in source_url_str:
             source_node = InfluxDbApiAdapter.from_url(source)
             sink.write(source_node)
         else:
-            sink.from_lineprotocol(str(source_url))
+            sink.from_lineprotocol(source_url_str)
 
     else:
         raise NotImplementedError(f"Data source not implemented: {source_url}")

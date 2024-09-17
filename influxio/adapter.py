@@ -10,8 +10,10 @@ import pandas as pd
 import psycopg2
 import sqlalchemy
 import sqlalchemy as sa
+from fsspec import filesystem
 from influxdb_client import InfluxDBClient
 from sqlalchemy_utils import create_database
+from upath import UPath
 from yarl import URL
 
 from influxio.io import dataframe_from_lineprotocol, dataframe_to_lineprotocol, dataframe_to_sql
@@ -374,10 +376,12 @@ class SqlAlchemyAdapter:
 
     def from_lineprotocol(self, source: t.Union[Path, str], precision: str = "ns"):
         """
-        Load data from file in lineprotocol format (ILP).
+        Load data from file or resource in lineprotocol format (ILP).
         """
-        logger.info(f"Loading line protocol file: {source}")
-        with open(source, "r") as fp:
+        logger.info(f"Loading line protocol data. source={source}")
+        p = UPath(source)
+        fs = filesystem(p.protocol, **p.storage_options)  # equivalent to p.fs
+        with fs.open(p.path) as fp:
             df = dataframe_from_lineprotocol(fp)
             self.write(df)
 
