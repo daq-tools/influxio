@@ -6,6 +6,7 @@ Changelog
 in progress
 ===========
 - Unlock loading ILP files into SQLAlchemy databases
+- Unlock loading ILP files from HTTP resources
 
 2024-06-23 v0.4.0
 =================

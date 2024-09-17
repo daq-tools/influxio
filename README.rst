@@ -227,6 +227,15 @@ Load data from InfluxDB files into any SQL database supported by SQLAlchemy.
         "file://export.lp" \
         "crate://crate@localhost:4200/testdrive/demo"
 
+    # From remote line protocol file to SQLite.
+    influxio copy \
+        "https://github.com/influxdata/influxdb2-sample-data/raw/master/air-sensor-data/air-sensor-data.lp" \
+        "sqlite:///export.sqlite?table=air-sensor-data"
+
+    # From remote line protocol file to CrateDB.
+    influxio copy \
+        "https://github.com/influxdata/influxdb2-sample-data/raw/master/air-sensor-data/air-sensor-data.lp" \
+        "crate://crate@localhost:4200/testdrive/demo"
 
 
 Export from Cloud to Cloud

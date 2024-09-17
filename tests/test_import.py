@@ -79,7 +79,7 @@ def test_import_lineprotocol_url(line_protocol_url_basic, caplog):
 
     # Make sure database is purged.
     api = InfluxDbApiAdapter.from_url(target_url)
-    api.delete_measurement()
+    api.delete_bucket()
 
     # Transfer data.
     influxio.core.copy(source_url, target_url)
