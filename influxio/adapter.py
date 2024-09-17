@@ -14,7 +14,7 @@ from influxdb_client import InfluxDBClient
 from sqlalchemy_utils import create_database
 from yarl import URL
 
-from influxio.io import dataframe_to_lineprotocol, dataframe_to_sql
+from influxio.io import dataframe_from_lineprotocol, dataframe_to_lineprotocol, dataframe_to_sql
 from influxio.model import CommandResult, DataFormat, OutputFile
 from influxio.util.common import run_command, url_fullpath
 
@@ -371,6 +371,15 @@ class SqlAlchemyAdapter:
             if url.scheme == "crate" and not database:
                 database = url.query.get("schema")
         return database, table
+
+    def from_lineprotocol(self, source: t.Union[Path, str], precision: str = "ns"):
+        """
+        Load data from file in lineprotocol format (ILP).
+        """
+        logger.info(f"Loading line protocol file: {source}")
+        with open(source, "r") as fp:
+            df = dataframe_from_lineprotocol(fp)
+            self.write(df)
 
 
 class FileAdapter:

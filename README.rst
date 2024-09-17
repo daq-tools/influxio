@@ -152,6 +152,8 @@ Help
 Import
 ------
 
+Import data from different sources into InfluxDB Server.
+
 .. code-block:: shell
 
     # From test data to API.
@@ -180,14 +182,11 @@ Import
         "https://github.com/influxdata/influxdb2-sample-data/raw/master/air-sensor-data/air-sensor-data.lp" \
         "http://example:token@localhost:8086/testdrive/demo"
 
-    # From line protocol file to any database supported by SQLAlchemy.
-    influxio copy \
-        "file://export.lp" \
-        "sqlite://export.sqlite?table=export"
-
 
 Export from API
 ---------------
+
+Export data from InfluxDB Server into different sinks.
 
 .. code-block:: shell
 
@@ -199,7 +198,7 @@ Export from API
     # From API to database server.
     influxio copy \
         "http://example:token@localhost:8086/testdrive/demo" \
-        "crate://crate@localhost:4200/testdrive?table=demo"
+        "crate://crate@localhost:4200/testdrive/demo"
 
     # From API to line protocol file.
     influxio copy \
@@ -210,6 +209,25 @@ Export from API
     influxio copy \
         "http://example:token@localhost:8086/testdrive/demo" \
         "file://-?format=lp"
+
+Load from File
+--------------
+
+Load data from InfluxDB files into any SQL database supported by SQLAlchemy.
+
+.. code-block:: shell
+
+    # From local line protocol file to SQLite.
+    influxio copy \
+        "file://export.lp" \
+        "sqlite:///export.sqlite?table=export"
+
+    # From local line protocol file to CrateDB.
+    influxio copy \
+        "file://export.lp" \
+        "crate://crate@localhost:4200/testdrive/demo"
+
+
 
 Export from Cloud to Cloud
 --------------------------
@@ -307,7 +325,7 @@ Example usage:
 
     influxio copy \
         "http://example:token@localhost:8086/testdrive/demo" \
-        "crate://crate@localhost:4200/testdrive?table=demo&if-exists=replace"
+        "crate://crate@localhost:4200/testdrive/demo?if-exists=replace"
 
 
 *******************

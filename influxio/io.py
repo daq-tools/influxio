@@ -113,6 +113,7 @@ def dataframe_to_sql(
         * replace: Drop the table before inserting new values.
         * append: Insert new values to the existing table.
     """
+    logger.info(f"Writing dataframe to SQL: uri={dburi}, table={tablename}")
     import dask.dataframe as dd
 
     # Set a few defaults.
