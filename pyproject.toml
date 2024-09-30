@@ -104,7 +104,7 @@ optional-dependencies.develop = [
   "pyproject-fmt<2.3",
   "ruff<0.7",
   "sphinx-autobuild==2021.3.14", # Newer versions stopped "watching" appropriately?
-  "validate-pyproject<0.20",
+  "validate-pyproject<0.21",
 ]
 optional-dependencies.docs = [
   "furo",
