@@ -100,7 +100,7 @@ dependencies = [
 optional-dependencies.develop = [
   "black<25",
   "mypy<1.12",
-  "poethepoet<0.29",
+  "poethepoet<0.30",
   "pyproject-fmt<2.3",
   "ruff<0.7",
   "sphinx-autobuild==2021.3.14", # Newer versions stopped "watching" appropriately?
