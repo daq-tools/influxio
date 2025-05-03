@@ -5,6 +5,7 @@ Changelog
 
 in progress
 ===========
+- CI: Started verifying against Python 3.13. Thanks, @Penlect.
 
 2024-09-17 v0.5.0
 =================
