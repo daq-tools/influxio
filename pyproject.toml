@@ -29,7 +29,7 @@ authors = [
   { name = "Andreas Motl", email = "andreas.motl@panodata.org" },
   { name = "Richard Pobering", email = "richard.pobering@panodata.org" },
 ]
-requires-python = ">=3.8,<3.13"
+requires-python = ">=3.8,<3.14"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
@@ -54,6 +54,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Communications",
   "Topic :: Database",
   "Topic :: Documentation",
