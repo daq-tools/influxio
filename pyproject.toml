@@ -100,11 +100,11 @@ dependencies = [
 optional-dependencies.develop = [
   "black<25",
   "mypy<1.14",
-  "poethepoet<0.30",
-  "pyproject-fmt<2.5",
+  "poethepoet<1",
+  "pyproject-fmt<3",
   "ruff<0.8",
   "sphinx-autobuild==2021.3.14", # Newer versions stopped "watching" appropriately?
-  "validate-pyproject<0.23",
+  "validate-pyproject<1",
 ]
 optional-dependencies.docs = [
   "furo",
