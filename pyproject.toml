@@ -99,7 +99,7 @@ dependencies = [
   "yarl<2",
 ]
 optional-dependencies.develop = [
-  "black<25",
+  "black<26",
   "mypy<1.14",
   "poethepoet<1",
   "pyproject-fmt<3",
