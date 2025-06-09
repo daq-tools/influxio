@@ -90,7 +90,7 @@ dependencies = [
   "influx-line==1.0.0",
   "influxdb-client[ciso]<2",
   "line-protocol-parser<2",
-  "pandas<2.3",
+  "pandas<2.4",
   "psycopg2-binary<3",
   "pueblo>=0.0.7",
   "sqlalchemy-cratedb>=0.37,<1",
