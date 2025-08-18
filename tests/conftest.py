@@ -23,6 +23,11 @@ def line_protocol_file_basic():
 
 
 @pytest.fixture
+def line_protocol_file_industrial():
+    return Path("tests/testdata/industrial.lp")
+
+
+@pytest.fixture
 def line_protocol_url_basic():
     return "https://github.com/daq-tools/influxio/raw/main/tests/testdata/basic.lp"
 
