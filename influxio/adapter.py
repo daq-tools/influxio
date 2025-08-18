@@ -53,7 +53,11 @@ class InfluxDbApiAdapter:
             url: URL = URL(url)
         token = url.password
         org = url.user
-        bucket, measurement = url.path.strip("/").split("/")
+        try:
+            bucket, measurement = url.path.strip("/").split("/")
+        except ValueError:
+            bucket = url.path.strip("/").split("/")[0]
+            measurement = None
         bare_url = f"{url.scheme}://{url.host}:{url.port}"
         kwargs.setdefault("timeout", float(url.query.get("timeout", DEFAULT_TIMEOUT)))
         return cls(url=bare_url, token=token, org=org, bucket=bucket, measurement=measurement, **kwargs)
@@ -87,11 +91,13 @@ class InfluxDbApiAdapter:
             df = df.rename(columns={"_time": "time", "_measurement": "measurement"})
             yield df
 
-    def read_records(self) -> t.Dict[str, t.Any]:
+    def read_records(self, bucket: t.Optional[str] = None, measurement: t.Optional[str] = None) -> t.Dict[str, t.Any]:
+        bucket = bucket or self.bucket
+        measurement = measurement or self.measurement
         query = f"""
-            from(bucket: "{self.bucket}")
+            from(bucket: "{bucket}")
                 |> range(start: 0)
-                |> filter(fn: (r) => r._measurement == "{self.measurement}")
+                |> filter(fn: (r) => r._measurement == "{measurement}")
             """
         result = self.client.query_api().query(query=query)
         return json.loads(result.to_json())
@@ -169,7 +175,7 @@ class InfluxDbApiAdapter:
         except Exception:  # noqa: S110
             pass
 
-        logger.info(f"Importing line protocol format to InfluxDB. bucket={self.bucket}, measurement={self.measurement}")
+        logger.info(f"Importing line protocol format to InfluxDB. bucket={self.bucket}")
         self.ensure_bucket()
 
         if is_url:

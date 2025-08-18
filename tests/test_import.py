@@ -47,9 +47,9 @@ def test_import_testdata(spec: DatasetItemSpec, caplog):
     assert len(records) == spec.length
 
 
-def test_import_lineprotocol_file(line_protocol_file_basic, caplog):
+def test_import_lineprotocol_file_basic(line_protocol_file_basic, caplog):
     """
-    CLI test: Import line protocol data to InfluxDB.
+    CLI test: Import line protocol data to InfluxDB. Single measurement.
     """
     source_url = f"file://{line_protocol_file_basic}"
     target_url = "http://example:token@localhost:8086/testdrive/basic"
@@ -63,10 +63,37 @@ def test_import_lineprotocol_file(line_protocol_file_basic, caplog):
 
     # Verify execution.
     assert f"Copying from {source_url} to {target_url}" in caplog.messages
-    assert "Importing line protocol format to InfluxDB. bucket=testdrive, measurement=basic" in caplog.messages
+    assert "Importing line protocol format to InfluxDB. bucket=testdrive" in caplog.messages
 
     # Verify number of records in database.
     records = api.read_records()
+    assert len(records) == 2
+
+
+def test_import_lineprotocol_file_industrial(line_protocol_file_industrial, caplog):
+    """
+    CLI test: Import line protocol data to InfluxDB. Multiple measurements.
+    """
+    source_url = f"file://{line_protocol_file_industrial}"
+    target_url = "http://example:token@localhost:8086/testdrive"
+
+    # Make sure database is purged.
+    api = InfluxDbApiAdapter.from_url(target_url)
+    api.delete_measurement()
+
+    # Transfer data.
+    influxio.core.copy(source_url, target_url)
+
+    # Verify execution.
+    assert f"Copying from {source_url} to {target_url}" in caplog.messages
+    assert "Importing line protocol format to InfluxDB. bucket=testdrive" in caplog.messages
+
+    # Verify number of records in database.
+    records = api.read_records(measurement="Füllstände")
+    assert len(records) == 4
+    records = api.read_records(measurement="Gasanalyse")
+    assert len(records) == 2
+    records = api.read_records(measurement="Stromproduktion")
     assert len(records) == 2
 
 
@@ -86,7 +113,7 @@ def test_import_lineprotocol_url(line_protocol_url_basic, caplog):
 
     # Verify execution.
     assert f"Copying from {source_url} to {target_url}" in caplog.messages
-    assert "Importing line protocol format to InfluxDB. bucket=testdrive, measurement=basic" in caplog.messages
+    assert "Importing line protocol format to InfluxDB. bucket=testdrive" in caplog.messages
 
     # Verify number of records in database.
     records = api.read_records()
