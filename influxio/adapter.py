@@ -7,6 +7,7 @@ from pathlib import Path
 
 import influxdb_client.rest
 import pandas as pd
+import polars as pl
 import psycopg2
 import sqlalchemy
 import sqlalchemy as sa
@@ -329,7 +330,7 @@ class SqlAlchemyAdapter:
                 dataframe_to_sql(
                     df, dburi=self.dburi, tablename=table, if_exists=self.if_exists, progress=self.progress
                 )
-        elif isinstance(source, pd.DataFrame):
+        elif isinstance(source, (pd.DataFrame, pl.DataFrame)):
             dataframe_to_sql(
                 source, dburi=self.dburi, tablename=table, if_exists=self.if_exists, progress=self.progress
             )

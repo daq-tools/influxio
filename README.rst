@@ -68,7 +68,7 @@ It can be used both as a standalone program, and as a library.
 
 ``influxio`` is, amongst others, based on the excellent `dask`_, `fsspec`_,
 `influxdb-client`_, `influx-line`_, `line-protocol-parser`_, `pandas`_,
-and `SQLAlchemy`_ packages.
+`Polars`_, and `SQLAlchemy`_ packages.
 
 
 ********
@@ -393,5 +393,6 @@ There are a few other projects which are aiming at similar goals.
 .. _list of other projects: doc/prior-art.rst
 .. _Outflux: https://github.com/timescale/outflux
 .. _pandas: https://pandas.pydata.org/
+.. _Polars: https://pola.rs/
 .. _SQLAlchemy: https://pypi.org/project/SQLAlchemy/
 .. _testdata: https://github.com/daq-tools/influxio/tree/main/tests/testdata

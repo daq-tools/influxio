@@ -6,6 +6,7 @@ from pathlib import Path
 
 import fsspec
 import pandas as pd
+import polars as pl
 from influx_line import InfluxLine
 
 logger = logging.getLogger(__name__)
@@ -65,14 +66,14 @@ def records_from_lineprotocol(data: t.IO[t.Any]):
 
 def dataframes_from_lineprotocol(data: t.IO[t.Any]) -> t.Dict[str, pd.DataFrame]:
     """
-    Read InfluxDB line protocol file into multiple pandas DataFrames, one per measurement.
+    Read InfluxDB line protocol file, grouping individual measurement records into multiple Polars DataFrames.
     """
     records = records_from_lineprotocol(data)
     buffer = {}
-    df = pd.DataFrame(records)
-    measurements = df.measurement.unique()
+    frame = pl.DataFrame(records)
+    measurements = frame.unique("measurement")["measurement"]
     for measurement in measurements:
-        buffer[measurement] = df.query(f"measurement == '{measurement}'")
+        buffer[measurement] = frame.filter(pl.col("measurement") == measurement)
     return buffer
 
 
@@ -98,7 +99,7 @@ def dataframe_to_lineprotocol(df: pd.DataFrame, progress: bool = False) -> t.Gen
 
 
 def dataframe_to_sql(
-    df: pd.DataFrame,
+    df: t.Union[pd.DataFrame, pl.DataFrame],
     dburi: str,
     tablename: str,
     index=False,
@@ -146,6 +147,8 @@ def dataframe_to_sql(
         method = "multi"
 
     # Load data into database.
+    if isinstance(df, pl.DataFrame):
+        df = df.to_pandas()
     ddf = dd.from_pandas(df, npartitions=npartitions)
     ddf = ddf.drop(columns="measurement", errors="ignore")
     return ddf.to_sql(
