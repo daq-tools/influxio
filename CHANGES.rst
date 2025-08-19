@@ -8,6 +8,8 @@ in progress
 - API: Added ``timeout`` URL query parameter, using a default value of 60 seconds.
   Thanks, @ZillKhan.
 - ILP/InfluxDB: Validated importing multiple measurements
+- ILP/SQL: Fixed importing multiple measurements into different tables.
+  Thanks, @ZillKhan.
 
 2025-05-04 v0.5.1
 =================

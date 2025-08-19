@@ -13,7 +13,7 @@ import logging
 from pathlib import Path
 
 from influxio.adapter import InfluxDbApiAdapter, InfluxDbEngineAdapter
-from influxio.io import dataframe_from_lineprotocol
+from influxio.io import dataframes_from_lineprotocol
 from influxio.testdata import DataFrameFactory
 from influxio.util.common import setup_logging
 
@@ -53,8 +53,10 @@ def main():
 
     logger.info("Reading back data from lineprotocol file")
     with gzip.open(LINEPROTOCOL_FILE) as buffer:
-        df = dataframe_from_lineprotocol(buffer)
-        print(df)  # noqa: T201
+        data = dataframes_from_lineprotocol(buffer)
+        for name, df in data.items():
+            print(name)  # noqa: T201
+            print(df)  # noqa: T201
 
     logger.info("Ready.")
 

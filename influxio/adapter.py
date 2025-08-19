@@ -16,7 +16,7 @@ from sqlalchemy_utils import create_database
 from upath import UPath
 from yarl import URL
 
-from influxio.io import dataframe_from_lineprotocol, dataframe_to_lineprotocol, dataframe_to_sql
+from influxio.io import dataframe_to_lineprotocol, dataframe_to_sql, dataframes_from_lineprotocol
 from influxio.model import CommandResult, DataFormat, OutputFile
 from influxio.util.common import run_command, url_fullpath
 
@@ -321,16 +321,17 @@ class SqlAlchemyAdapter:
     def from_url(cls, url: t.Union[URL, str], **kwargs) -> "SqlAlchemyAdapter":
         return cls(url=url, **kwargs)
 
-    def write(self, source: t.Union[pd.DataFrame, InfluxDbApiAdapter]):
+    def write(self, source: t.Union[pd.DataFrame, InfluxDbApiAdapter], table: t.Optional[str] = None):
+        table = table or self.table
         logger.info("Loading dataframes into RDBMS/SQL database using pandas/Dask")
         if isinstance(source, InfluxDbApiAdapter):
             for df in source.read_df():
                 dataframe_to_sql(
-                    df, dburi=self.dburi, tablename=self.table, if_exists=self.if_exists, progress=self.progress
+                    df, dburi=self.dburi, tablename=table, if_exists=self.if_exists, progress=self.progress
                 )
         elif isinstance(source, pd.DataFrame):
             dataframe_to_sql(
-                source, dburi=self.dburi, tablename=self.table, if_exists=self.if_exists, progress=self.progress
+                source, dburi=self.dburi, tablename=table, if_exists=self.if_exists, progress=self.progress
             )
         else:
             raise NotImplementedError(f"Failed handling source: {source}")
@@ -340,10 +341,11 @@ class SqlAlchemyAdapter:
         with engine.connect() as connection:
             return connection.execute(sa.text(f"REFRESH TABLE {self.table};"))
 
-    def read_records(self) -> t.List[t.Dict]:
+    def read_records(self, table: t.Optional[str] = None) -> t.List[t.Dict]:
+        table = table or self.table
         engine = sa.create_engine(self.dburi)
         with engine.connect() as connection:
-            result = connection.execute(sa.text(f"SELECT * FROM {self.table};"))  # noqa: S608
+            result = connection.execute(sa.text(f"SELECT * FROM {table};"))  # noqa: S608
             records = [dict(item) for item in result.mappings().fetchall()]
             return records
 
@@ -403,8 +405,9 @@ class SqlAlchemyAdapter:
         p = UPath(source)
         fs = filesystem(p.protocol, **p.storage_options)  # equivalent to p.fs
         with fs.open(p.path) as fp:
-            df = dataframe_from_lineprotocol(fp)
-            self.write(df)
+            frames = dataframes_from_lineprotocol(fp)
+            for table, df in frames.items():
+                self.write(df, table=table)
 
 
 class FileAdapter:
