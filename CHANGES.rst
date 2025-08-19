@@ -5,6 +5,9 @@ Changelog
 
 in progress
 ===========
+
+2025-08-19 v0.6.0
+=================
 - API: Added ``timeout`` URL query parameter, using a default value of 60 seconds.
   Thanks, @ZillKhan.
 - ILP/InfluxDB: Validated importing multiple measurements
