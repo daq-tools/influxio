@@ -14,6 +14,13 @@ on:
   # Allow job to be triggered manually.
   workflow_dispatch:
 
+permissions:
+  # Permit pushing to GHCR.
+  contents: read
+  packages: write
+  # Enable signed provenance/attestations.
+  id-token: write
+
 # Cancel in-progress jobs when pushing to the same branch.
 concurrency:
   cancel-in-progress: true
@@ -123,6 +130,8 @@ jobs:
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          sbom: true
+          provenance: mode=max
 
       - name: Display git status
         run: |
