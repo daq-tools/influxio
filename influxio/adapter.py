@@ -22,16 +22,30 @@ from influxio.util.common import run_command, url_fullpath
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_TIMEOUT = 60.0
+
 
 class InfluxDbApiAdapter:
-    def __init__(self, url: str, token: str, org: str, bucket: str, measurement: str, debug: bool = False):
+    def __init__(
+        self,
+        url: str,
+        token: str,
+        org: str,
+        bucket: str,
+        measurement: str,
+        debug: bool = False,
+        timeout: float = DEFAULT_TIMEOUT,
+    ):
         self.url = url
         self.token = token
         self.org = org
         self.bucket = bucket
         self.measurement = measurement
         self.debug = debug
-        self.client = InfluxDBClient(url=self.url, org=self.org, token=self.token, debug=self.debug)
+        self.timeout = timeout
+        self.client = InfluxDBClient(
+            url=self.url, org=self.org, token=self.token, debug=self.debug, timeout=int(self.timeout * 1000.0)
+        )
 
     @classmethod
     def from_url(cls, url: t.Union[URL, str], **kwargs) -> "InfluxDbApiAdapter":
@@ -41,6 +55,7 @@ class InfluxDbApiAdapter:
         org = url.user
         bucket, measurement = url.path.strip("/").split("/")
         bare_url = f"{url.scheme}://{url.host}:{url.port}"
+        kwargs.setdefault("timeout", float(url.query.get("timeout", DEFAULT_TIMEOUT)))
         return cls(url=bare_url, token=token, org=org, bucket=bucket, measurement=measurement, **kwargs)
 
     def delete_measurement(self):

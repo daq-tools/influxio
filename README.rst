@@ -314,8 +314,28 @@ keystrokes on subsequent invocations.
     influxio copy "${SOURCE}" "${TARGET}"
 
 
-Parameters
-==========
+InfluxDB parameters
+===================
+
+``timeout``
+-----------
+The network timeout value is specified in seconds, the default value
+is 60 seconds. Both details deviate from the standard default setting
+of the underlying `InfluxDB client library <influxdb-client>`_, which
+uses milliseconds, and a default value of 10_000 milliseconds.
+
+If you need to adjust this setting, add the parameter ``timeout`` to
+the InfluxDB URL like this:
+
+.. code-block:: shell
+
+    influxio copy \
+        "http://example:token@localhost:8086/testdrive/demo?timeout=300" \
+        "crate://crate@localhost:4200/testdrive/demo"
+
+
+CrateDB parameters
+==================
 
 ``if-exists``
 -------------

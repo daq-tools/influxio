@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
+import urllib3
 from yarl import URL
 
 import influxio.core
@@ -248,6 +249,20 @@ basic,fruits=apple\,banana,id=1,name=foo price=0.42 1414747376000000000
 basic,fruits=pear,id=2,name=bar price=0.84 1414747378000000000
 """.lstrip()
     )
+
+
+def test_export_api_ilp_timeout(caplog, capsys, influxdb, provision_influxdb):
+    """
+    Verify that the `timeout` option works.
+    """
+
+    source_url = INFLUXDB_API_URL + "?timeout=0.001"
+    target_url = ILP_URL_STDOUT
+
+    # Transfer data.
+    with pytest.raises(urllib3.exceptions.ReadTimeoutError) as ex:
+        influxio.core.copy(source_url, target_url)
+    assert ex.match("Read timed out.")
 
 
 def test_export_directory_ilp_stdout(caplog, capsys, influxdb, provision_influxdb):
