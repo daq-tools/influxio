@@ -10,6 +10,10 @@ in progress
 - ILP/InfluxDB: Validated importing multiple measurements
 - ILP/SQL: Fixed importing multiple measurements into different tables.
   Thanks, @ZillKhan.
+- ILP: Started using Polars for reading data after ``read_lineprotocol``,
+  because the pandas-based implementation was too memory-intensive after
+  introducing grouping of measurements when importing from ILP. Polars'
+  lazy computation helps in this regard. Thanks, @ZillKhan.
 
 2025-05-04 v0.5.1
 =================
