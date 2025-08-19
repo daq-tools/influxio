@@ -54,6 +54,7 @@ def records_from_lineprotocol(data: t.IO[t.Any]):
     """
     for lp in read_lineprotocol(data=data):
         record = OrderedDict()
+        record["measurement"] = lp["measurement"]
         record["time"] = lp["time"]
         for tag, value in lp["tags"].items():
             record[tag] = value
@@ -62,12 +63,17 @@ def records_from_lineprotocol(data: t.IO[t.Any]):
         yield record
 
 
-def dataframe_from_lineprotocol(data: t.IO[t.Any]):
+def dataframes_from_lineprotocol(data: t.IO[t.Any]) -> t.Dict[str, pd.DataFrame]:
     """
-    Read stream of InfluxDB line protocol into pandas DataFrame.
+    Read InfluxDB line protocol file into multiple pandas DataFrames, one per measurement.
     """
     records = records_from_lineprotocol(data)
-    return pd.DataFrame(records)
+    buffer = {}
+    df = pd.DataFrame(records)
+    measurements = df.measurement.unique()
+    for measurement in measurements:
+        buffer[measurement] = df.query(f"measurement == '{measurement}'")
+    return buffer
 
 
 def dataframe_to_lineprotocol(df: pd.DataFrame, progress: bool = False) -> t.Generator[str, None, None]:
@@ -141,6 +147,7 @@ def dataframe_to_sql(
 
     # Load data into database.
     ddf = dd.from_pandas(df, npartitions=npartitions)
+    ddf = ddf.drop(columns="measurement", errors="ignore")
     return ddf.to_sql(
         tablename,
         uri=dburi,
