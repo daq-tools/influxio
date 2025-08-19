@@ -70,11 +70,6 @@ It can be used both as a standalone program, and as a library.
 `influxdb-client`_, `influx-line`_, `line-protocol-parser`_, `pandas`_,
 and `SQLAlchemy`_ packages.
 
-Please note that ``influxio`` is alpha-quality software, and a work in progress.
-Contributions of all kinds are very welcome, in order to make it more solid.
-Breaking changes should be expected until a 1.0 release, so version pinning
-is recommended, especially when you use it as a library.
-
 
 ********
 Synopsis
@@ -341,10 +336,19 @@ Example usage:
 Project information
 *******************
 
-Development
-===========
+Contribute
+==========
+Contributions of all kinds are much very welcome, in order to make the
+software more solid.
+
 For installing the project from source, please follow the `development`_
 documentation.
+
+Status
+======
+
+Breaking changes should be expected until a 1.0 release, so version pinning
+is recommended, especially when you use it as a library.
 
 Prior art
 =========
