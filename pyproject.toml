@@ -96,7 +96,7 @@ dependencies = [
   "pueblo>=0.0.7",
   "pyarrow; python_version<='3.9'",
   "sqlalchemy-cratedb>=0.37,<1",
-  "sqlalchemy-utils<0.42",
+  "sqlalchemy-utils<0.43",
   "universal-pathlib<0.3",
   "yarl<2",
 ]
