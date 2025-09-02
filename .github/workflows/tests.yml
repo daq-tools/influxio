@@ -68,7 +68,7 @@ jobs:
     steps:
 
     - name: Acquire sources
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     # Install InfluxDB CLI tools.
     - name: Set up InfluxDB CLI
