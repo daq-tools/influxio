@@ -106,7 +106,7 @@ optional-dependencies.develop = [
   "poethepoet<1",
   "pyproject-fmt<3",
   "ruff<0.13",
-  "sphinx-autobuild==2021.3.14", # Newer versions stopped "watching" appropriately?
+  "sphinx-autobuild==2024.10.3", # Newer versions stopped "watching" appropriately?
   "validate-pyproject<1",
 ]
 optional-dependencies.docs = [
