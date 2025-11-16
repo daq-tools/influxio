@@ -5,6 +5,7 @@ Changelog
 
 in progress
 ===========
+- CI: Validated on Python 3.14
 
 2025-08-19 v0.6.0
 =================
