@@ -6,6 +6,7 @@ Changelog
 in progress
 ===========
 - CI: Validated on Python 3.14
+- OCI: Updated to ``python:3.14-slim-trixie``
 
 2025-08-19 v0.6.0
 =================
