@@ -23,7 +23,9 @@ jobs:
       matrix:
         os: [
           "ubuntu-22.04",
-          "ubuntu-latest",
+          "ubuntu-22.04-arm",
+          "ubuntu-24.04",
+          "ubuntu-24.04-arm",
         ]
         python-version: [
           "3.8",
@@ -73,9 +75,10 @@ jobs:
       UV_SYSTEM_PYTHON: true
 
     name: "
-    Python ${{ matrix.python-version }},
-    InfluxDB ${{ matrix.influxdb-version }},
-    OS ${{ matrix.os }}"
+    Py ${{ matrix.python-version }},
+    OS ${{ matrix.os }},
+    InfluxDB ${{ matrix.influxdb-version }}
+    "
     steps:
 
     - name: Acquire sources
