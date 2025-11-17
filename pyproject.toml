@@ -90,7 +90,7 @@ dependencies = [
   "importlib-metadata; python_version<='3.9'",
   "influx-line==1.0.0",
   "influxdb-client[ciso]<2",
-  "line-protocol-parser<2",
+  "line-protocol-parser<2,!=1.1.3",
   "pandas<2.4",
   "polars<2",
   "psycopg2-binary<3",
