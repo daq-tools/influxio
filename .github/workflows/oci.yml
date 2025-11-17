@@ -129,7 +129,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,compression=zstd
           sbom: true
           provenance: mode=max
 
