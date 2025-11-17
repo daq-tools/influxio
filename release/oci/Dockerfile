@@ -6,12 +6,21 @@
 
 FROM python:3.14-slim-trixie
 
+# Enable concurrent multi-arch builds.
+# https://github.com/docker/buildx/issues/549#issuecomment-1788297892
+ARG TARGETPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
+
+# Configure operating system.
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=linux
 
 # Install Git, it is needed for `versioningit`.
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
-RUN --mount=type=cache,id=apt,target=/var/cache/apt --mount=type=cache,id=apt,target=/var/lib/apt \
+RUN --mount=type=cache,id=apt-cache-${TARGETARCH}${TARGETVARIANT},target=/var/cache/apt \
+    --mount=type=cache,id=apt-lists-${TARGETARCH}${TARGETVARIANT},target=/var/lib/apt \
     true \
     && apt-get update \
     && apt-get install --no-install-recommends --no-install-suggests --yes git
