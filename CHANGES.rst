@@ -5,6 +5,9 @@ Changelog
 
 in progress
 ===========
+
+2025-11-18 v0.6.1
+=================
 - CI: Validated on Python 3.14
 - OCI: Started providing builds for ``linux/arm64``
 
