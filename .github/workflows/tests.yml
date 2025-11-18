@@ -20,6 +20,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [
           "ubuntu-22.04",
@@ -37,7 +38,11 @@ jobs:
           "3.14",
         ]
         influxdb-version: [ "2.6", "2.7" ]
-      fail-fast: false
+        exclude:
+          - os: "ubuntu-22.04"
+            python-version: "3.8"
+          - os: "ubuntu-22.04-arm"
+            python-version: "3.8"
 
     # https://docs.github.com/en/actions/using-containerized-services/about-service-containers
     services:
