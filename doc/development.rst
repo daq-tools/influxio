@@ -60,7 +60,7 @@ PostgreSQL
 .. code-block:: shell
 
     docker run --rm -it --publish=5432:5432 \
-        --env "POSTGRES_HOST_AUTH_METHOD=trust" postgres:16 \
+        --env "POSTGRES_HOST_AUTH_METHOD=trust" postgres:18 \
         postgres -c log_statement=all
 
 Software Tests
