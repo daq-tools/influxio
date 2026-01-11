@@ -7,6 +7,9 @@ in progress
 ===========
 - Improved error handling when InfluxDB data source is empty
   or addressed incorrectly. Thanks, @ZillKhan.
+- Improved importing data into CrateDB including varying tags,
+  by using CrateDB's `dynamic` column policy on the whole table.
+  Thanks, @ZillKhan.
 
 2025-11-18 v0.6.1
 =================

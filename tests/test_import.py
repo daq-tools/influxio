@@ -97,6 +97,36 @@ def test_import_lineprotocol_file_industrial(line_protocol_file_industrial, capl
     assert len(records) == 2
 
 
+def test_import_lineprotocol_file_irregular(influxdb, cratedb, line_protocol_file_irregular, caplog):
+    """
+    CLI test: Import line protocol data to InfluxDB, then CrateDB.
+
+    This test is to verify a dataset that progressively includes new tags
+    while processing, so the data sink must accompany a dynamic behaviour.
+    """
+
+    # Transfer data to InfluxDB.
+    source_url = f"file://{line_protocol_file_irregular}"
+    target_url = "http://example:token@localhost:8086/testdrive"
+    influxio.core.copy(source_url, target_url)
+
+    # Verify execution.
+    assert f"Copying from {source_url} to {target_url}" in caplog.messages
+
+    # Transfer data to CrateDB.
+    source_url = target_url
+    target_url = "crate://crate@localhost:4200/testdrive/basic"
+    influxio.core.copy(source_url, target_url)
+
+    # Verify execution.
+    assert f"Copying from {source_url} to {target_url}" in caplog.messages
+
+    # Verify number of records in database.
+    cratedb.refresh_table()
+    records = cratedb.read_records("testdrive.basic")
+    assert len(records) == 7
+
+
 def test_import_lineprotocol_url(line_protocol_url_basic, caplog):
     """
     CLI test: Import line protocol data to InfluxDB.
