@@ -1,8 +1,8 @@
 # influxio
 
-[![Tests](https://github.com/pyveci/influxio/actions/workflows/main.yml/badge.svg)](https://github.com/pyveci/influxio/actions/workflows/main.yml)
-[![Test coverage](https://img.shields.io/codecov/c/gh/pyveci/influxio.svg)](https://codecov.io/gh/pyveci/influxio/)
-[![License](https://img.shields.io/github/license/pyveci/influxio.svg)](https://github.com/pyveci/influxio/blob/main/LICENSE)
+[![Tests](https://github.com/daq-tools/influxio/actions/workflows/tests.yml/badge.svg)](https://github.com/daq-tools/influxio/actions/workflows/tests.yml)
+[![Test coverage](https://img.shields.io/codecov/c/gh/daq-tools/influxio.svg)](https://codecov.io/gh/daq-tools/influxio/)
+[![License](https://img.shields.io/github/license/daq-tools/influxio.svg)](https://github.com/daq-tools/influxio/blob/main/LICENSE)
 [![Downloads](https://pepy.tech/badge/influxio/month)](https://pypi.org/project/influxio/)
 
 [![Python versions](https://img.shields.io/pypi/pyversions/influxio.svg)](https://pypi.org/project/influxio/)
