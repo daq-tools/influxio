@@ -5,6 +5,8 @@ Changelog
 
 in progress
 ===========
+- Improved error handling when InfluxDB data source is empty
+  or addressed incorrectly. Thanks, @ZillKhan.
 
 2025-11-18 v0.6.1
 =================
