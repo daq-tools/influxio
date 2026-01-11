@@ -5,6 +5,9 @@ Changelog
 
 in progress
 ===========
+
+2026-01-11 v0.7.0
+=================
 - Improved error handling when InfluxDB data source is empty
   or addressed incorrectly. Thanks, @ZillKhan.
 - Improved importing data into CrateDB including varying tags,
