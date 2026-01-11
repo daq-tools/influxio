@@ -296,7 +296,7 @@ class SqlAlchemyAdapter:
             url: URL = URL(url)
 
         self.database, self.table = self.decode_database_table(url)
-        self.if_exists = url.query.get("if-exists")
+        self.if_exists = url.query.get("if-exists") or "fail"
 
         # Special handling for SQLite and CrateDB databases.
         self.dburi = str(url.with_query(None))
