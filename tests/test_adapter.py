@@ -42,7 +42,7 @@ def test_cratedb_adapter_database_table():
     assert adapter.database == "testdrive"
     assert adapter.table == "basic"
     assert adapter.dburi == "crate://localhost:4200/?schema=testdrive"
-    assert adapter.if_exists is None
+    assert adapter.if_exists == "fail"
 
 
 def test_cratedb_adapter_if_exists():
