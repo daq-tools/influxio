@@ -327,6 +327,24 @@ class SqlAlchemyAdapter:
     def write(self, source: t.Union[pd.DataFrame, InfluxDbApiAdapter], table: t.Optional[str] = None):
         table = table or self.table
         logger.info("Loading dataframes into RDBMS/SQL database using pandas/Dask")
+
+        # For CrateDB, converge `if-exists={fail,replace}` to `if-exists=append`, and create the table manually.
+        if self.dburi.startswith("crate") and self.if_exists in ["fail", "replace"]:
+
+            # Prevent overwriting existing table when `if-exists=fail`.
+            if self.if_exists == "fail" and self.table_exists():
+                raise ValueError(f"Table '{table}' already exists.")
+
+            # Create table with dynamic column policy, to accompany new tags that
+            # progressively drop in while processing the whole dataset.
+            engine = sa.create_engine(self.dburi, echo=True)
+            with engine.connect() as connection:
+                connection.execute(sa.text(f"DROP TABLE IF EXISTS {table}"))
+                connection.execute(sa.text(f"CREATE TABLE {table} (dummy int) WITH (column_policy='dynamic')"))
+
+            # Because the table has been created already, switch to `append` mode.
+            self.if_exists = "append"
+
         if isinstance(source, InfluxDbApiAdapter):
             logger.info("Loading data from InfluxDB API")
             has_data = False
@@ -351,6 +369,12 @@ class SqlAlchemyAdapter:
         engine = sa.create_engine(self.dburi)
         with engine.connect() as connection:
             return connection.execute(sa.text(f"REFRESH TABLE {self.table};"))
+
+    def table_exists(self):
+        engine = sa.create_engine(self.dburi)
+        metadata = sa.MetaData()
+        metadata.reflect(bind=engine)
+        return self.table in metadata.tables
 
     def read_records(self, table: t.Optional[str] = None) -> t.List[t.Dict]:
         table = table or self.table
