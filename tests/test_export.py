@@ -6,25 +6,12 @@ import urllib3
 from yarl import URL
 
 import influxio.core
-from influxio.adapter import InfluxDbApiAdapter, SqlAlchemyAdapter
+from influxio.adapter import SqlAlchemyAdapter
+from tests.conftest import CRATEDB_URL, INFLUXDB_API_URL
 
-CRATEDB_URL = "crate://crate@localhost:4200/testdrive/basic"
-INFLUXDB_API_URL = "http://example:token@localhost:8086/testdrive/basic"
 INFLUXDB_ENGINE_URL = "file://var/lib/influxdb2/engine?bucket-id={bucket_id}&measurement={measurement}"
 POSTGRESQL_URL = "postgresql+psycopg2://postgres@localhost:5432/testdrive/basic"
 ILP_URL_STDOUT = "file://-?format=lp"
-
-
-@pytest.fixture
-def influxdb() -> InfluxDbApiAdapter:
-    return InfluxDbApiAdapter.from_url(INFLUXDB_API_URL)
-
-
-@pytest.fixture
-def cratedb() -> SqlAlchemyAdapter:
-    adapter = SqlAlchemyAdapter.from_url(CRATEDB_URL)
-    adapter.run_sql("DROP TABLE IF EXISTS basic")
-    return adapter
 
 
 @pytest.fixture
@@ -42,6 +29,7 @@ def sqlite(sqlite_url) -> SqlAlchemyAdapter:
 def postgresql() -> SqlAlchemyAdapter:
     adapter = SqlAlchemyAdapter.from_url(POSTGRESQL_URL)
     adapter.create_database()
+    adapter.run_sql("DROP TABLE IF EXISTS basic")
     return adapter
 
 
@@ -58,9 +46,6 @@ def provision_influxdb(influxdb, line_protocol_file_basic):
     """
     source_url = f"file://{line_protocol_file_basic}"
     target_url = INFLUXDB_API_URL
-
-    # Make sure database is purged.
-    influxdb.delete_measurement()
 
     # Transfer data.
     influxio.core.copy(source_url, target_url)
