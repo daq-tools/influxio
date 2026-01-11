@@ -378,6 +378,15 @@ There are a few other projects which are aiming at similar goals.
 - `influxdb-write-to-postgresql`_ (IW2PG)
 - `Outflux`_
 
+Supported by
+============
+
+.. image:: https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg
+    :target: https://jb.gg/OpenSourceSupport
+
+Special thanks to the people at JetBrains s.r.o. for supporting us with
+excellent development tooling.
+
 
 .. _dask: https://www.dask.org/
 .. _development: doc/development.rst
