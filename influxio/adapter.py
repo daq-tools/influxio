@@ -80,13 +80,15 @@ class InfluxDbApiAdapter:
 
     def read_df(self):
         """ """
+        filter_expression = ""
+        if self.measurement is not None:
+            filter_expression = f'|> filter(fn: (r) => r._measurement == "{self.measurement}")'
         query = f"""
         from(bucket:"{self.bucket}")
             |> range(start: 0, stop: now())
-            |> filter(fn: (r) => r._measurement == "{self.measurement}")
+            {filter_expression}
             |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         """
-        #
         for df in self.client.query_api().query_data_frame_stream(query=query):
             df = df.drop(["result", "table", "_start", "_stop"], axis=1)
             df = df.rename(columns={"_time": "time", "_measurement": "measurement"})
@@ -326,11 +328,19 @@ class SqlAlchemyAdapter:
         table = table or self.table
         logger.info("Loading dataframes into RDBMS/SQL database using pandas/Dask")
         if isinstance(source, InfluxDbApiAdapter):
+            logger.info("Loading data from InfluxDB API")
+            has_data = False
             for df in source.read_df():
+                has_data = True
                 dataframe_to_sql(
                     df, dburi=self.dburi, tablename=table, if_exists=self.if_exists, progress=self.progress
                 )
+            if not has_data:
+                msg = "No data has been loaded from InfluxDB"
+                logger.error(msg)
+                raise IOError(msg)
         elif isinstance(source, (pd.DataFrame, pl.DataFrame)):
+            logger.info("Loading data from dataframe")
             dataframe_to_sql(
                 source, dburi=self.dburi, tablename=table, if_exists=self.if_exists, progress=self.progress
             )

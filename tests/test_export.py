@@ -72,6 +72,31 @@ def test_export_cratedb_default(caplog, influxdb, provision_influxdb, cratedb):
     assert len(records) == 2
 
 
+def test_export_cratedb_no_data(caplog, influxdb, provision_influxdb, cratedb):
+    """
+    Export data from InfluxDB to CrateDB, but not data exists at source.
+    """
+
+    source_url = INFLUXDB_API_URL + "_unknown"
+    target_url = CRATEDB_URL
+
+    # Transfer data.
+    with pytest.raises(IOError) as exc:
+        influxio.core.copy(source_url, target_url)
+
+    assert exc.match("No data has been loaded from InfluxDB")
+
+    # Verify execution.
+    assert f"Copying from {source_url} to {target_url}" in caplog.messages
+    assert "Loading dataframes into RDBMS/SQL database using pandas/Dask" in caplog.messages
+    assert "No data has been loaded from InfluxDB" in caplog.messages
+
+    # Verify number of records in target database.
+    cratedb.refresh_table()
+    records = cratedb.read_records()
+    assert len(records) == 0
+
+
 def test_export_cratedb_fail_if_target_exists(caplog, influxdb, provision_influxdb, cratedb):
     """
     Exporting data from InfluxDB to CrateDB should fail if target table exists.
