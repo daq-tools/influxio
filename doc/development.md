@@ -14,9 +14,9 @@ and run software tests:
 ```shell
 git clone https://github.com/daq-tools/influxio
 cd influxio
-python3 -m venv .venv
+uv venv --python 3.14 --seed .venv
 source .venv/bin/activate
-pip install --use-pep517 --prefer-binary --editable=.[test,develop,release]
+uv pip install --editable='.[test,develop,docs,release]'
 ```
 
 ### Services
