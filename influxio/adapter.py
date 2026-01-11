@@ -65,7 +65,7 @@ class InfluxDbApiAdapter:
 
     def delete_measurement(self):
         """
-        https://docs.influxdata.com/influxdb/cloud/write-data/delete-data/
+        https://docs.influxdata.com/influxdb/v2/write-data/delete-data/
         """
         try:
             return self.client.delete_api().delete(
@@ -167,7 +167,7 @@ class InfluxDbApiAdapter:
             ms - Milliseconds
             s - Seconds
 
-        -- https://docs.influxdata.com/influxdb/cloud/write-data/developer-tools/line-protocol/
+        -- https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/
         """
         is_url = False
         try:
