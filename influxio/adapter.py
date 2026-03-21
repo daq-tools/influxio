@@ -298,6 +298,12 @@ class SqlAlchemyAdapter:
             url: URL = URL(url)
 
         self.database, self.table = self.decode_database_table(url)
+        if self.database:
+            self.table_fqn = f"{self.database}.{self.table}"
+            self.table_fqn_quoted = f'"{self.database}"."{self.table}"'
+        else:
+            self.table_fqn = self.table
+            self.table_fqn_quoted = f'"{self.table}"'
         self.if_exists = url.query.get("if-exists") or "fail"
 
         # Special handling for SQLite and CrateDB databases.
@@ -326,21 +332,26 @@ class SqlAlchemyAdapter:
 
     def write(self, source: t.Union[pd.DataFrame, InfluxDbApiAdapter], table: t.Optional[str] = None):
         table = table or self.table
+        table_fqn = f"{self.database}.{table}"
+        table_fqn_quoted = f'"{self.database}"."{table}"'
         logger.info("Loading dataframes into RDBMS/SQL database using pandas/Dask")
+        logger.info(f"Target table: {table_fqn_quoted}")
 
         # For CrateDB, converge `if-exists={fail,replace}` to `if-exists=append`, and create the table manually.
         if self.dburi.startswith("crate") and self.if_exists in ["fail", "replace"]:
 
             # Prevent overwriting existing table when `if-exists=fail`.
             if self.if_exists == "fail" and self.table_exists():
-                raise ValueError(f"Table '{table}' already exists.")
+                raise ValueError(f"Table '{table_fqn}' already exists.")
 
             # Create table with dynamic column policy, to accompany new tags that
             # progressively drop in while processing the whole dataset.
             engine = sa.create_engine(self.dburi, echo=True)
             with engine.connect() as connection:
-                connection.execute(sa.text(f"DROP TABLE IF EXISTS {table}"))
-                connection.execute(sa.text(f"CREATE TABLE {table} (dummy int) WITH (column_policy='dynamic')"))
+                connection.execute(sa.text(f"DROP TABLE IF EXISTS {table_fqn_quoted}"))
+                connection.execute(
+                    sa.text(f"CREATE TABLE {table_fqn_quoted} (dummy int) WITH (column_policy='dynamic')")
+                )
 
             # Because the table has been created already, switch to `append` mode.
             self.if_exists = "append"
@@ -351,7 +362,12 @@ class SqlAlchemyAdapter:
             for df in source.read_df():
                 has_data = True
                 dataframe_to_sql(
-                    df, dburi=self.dburi, tablename=table, if_exists=self.if_exists, progress=self.progress
+                    df,
+                    dburi=self.dburi,
+                    tablename=table,
+                    schema=self.database,
+                    if_exists=self.if_exists,
+                    progress=self.progress,
                 )
             if not has_data:
                 msg = "No data has been loaded from InfluxDB"
@@ -360,7 +376,12 @@ class SqlAlchemyAdapter:
         elif isinstance(source, (pd.DataFrame, pl.DataFrame)):
             logger.info("Loading data from dataframe")
             dataframe_to_sql(
-                source, dburi=self.dburi, tablename=table, if_exists=self.if_exists, progress=self.progress
+                source,
+                dburi=self.dburi,
+                tablename=table,
+                schema=self.database,
+                if_exists=self.if_exists,
+                progress=self.progress,
             )
         else:
             raise NotImplementedError(f"Failed handling source: {source}")
@@ -368,16 +389,16 @@ class SqlAlchemyAdapter:
     def refresh_table(self):
         engine = sa.create_engine(self.dburi)
         with engine.connect() as connection:
-            return connection.execute(sa.text(f"REFRESH TABLE {self.table};"))
+            return connection.execute(sa.text(f"REFRESH TABLE {self.table_fqn_quoted};"))
 
     def table_exists(self):
         engine = sa.create_engine(self.dburi)
         metadata = sa.MetaData()
-        metadata.reflect(bind=engine)
-        return self.table in metadata.tables
+        metadata.reflect(bind=engine, schema=self.database)
+        return self.table_fqn in metadata.tables
 
     def read_records(self, table: t.Optional[str] = None) -> t.List[t.Dict]:
-        table = table or self.table
+        table = table or self.table_fqn_quoted
         engine = sa.create_engine(self.dburi)
         with engine.connect() as connection:
             result = connection.execute(sa.text(f"SELECT * FROM {table};"))  # noqa: S608
@@ -417,19 +438,25 @@ class SqlAlchemyAdapter:
 
         Variants:
 
+            /<database>
             /<database>/<table>
             ?database=<database>&table=<table>
             ?schema=<database>&table=<table>
         """
+        database = None
+        table = None
+        path = url.path.strip("/")
         try:
-            database, table = url.path.strip("/").split("/")
+            database, table = path.split("/")
         except ValueError as ex:
+            if url.host and "not enough values to unpack" in str(ex):
+                database = path or None
             if "too many values to unpack" not in str(ex) and "not enough values to unpack" not in str(ex):
                 raise
-            database = url.query.get("database")
-            table = url.query.get("table")
+            database = url.query.get("database", database)
+            table = url.query.get("table", table)
             if url.scheme == "crate" and not database:
-                database = url.query.get("schema")
+                database = url.query.get("schema", database)
         return database, table
 
     def from_lineprotocol(self, source: t.Union[Path, str], precision: str = "ns"):

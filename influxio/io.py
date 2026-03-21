@@ -102,6 +102,7 @@ def dataframe_to_sql(
     df: t.Union[pd.DataFrame, pl.DataFrame],
     dburi: str,
     tablename: str,
+    schema: str = None,
     index=False,
     chunksize=None,
     if_exists="fail",
@@ -154,6 +155,7 @@ def dataframe_to_sql(
     return ddf.to_sql(
         tablename,
         uri=dburi,
+        schema=schema,
         index=index,
         chunksize=chunksize,
         if_exists=if_exists,
