@@ -2,7 +2,7 @@
 
 ## in progress
 
-- OCI: Switched from Debian ``bookworm`` to ``trixie``
+- OCI: Switched from Debian `bookworm` to `trixie`
 
 ## 2026-01-11 v0.7.0
 
