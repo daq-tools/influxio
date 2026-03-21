@@ -24,7 +24,6 @@ keywords = [
   "timeseries-data",
   "transfer",
 ]
-license = "MIT"
 authors = [
   { name = "Andreas Motl", email = "andreas.motl@panodata.org" },
   { name = "Richard Pobering", email = "richard.pobering@panodata.org" },
