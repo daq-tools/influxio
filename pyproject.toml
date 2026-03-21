@@ -97,6 +97,7 @@ dependencies = [
   "sqlalchemy-cratedb>=0.37,<1",
   "sqlalchemy-utils<0.43",
   "universal-pathlib<0.4",
+  "verlib2",
   "yarl<2",
 ]
 optional-dependencies.develop = [

@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
 
+import pandas as pd
 import pytest
 import urllib3
+from verlib2 import Version
 from yarl import URL
 
 import influxio.core
@@ -227,9 +229,15 @@ def test_export_api_ilp_stdout(caplog, capsys, influxdb, provision_influxdb):
 
     # Verify records on stdout have the right shape.
     out, err = capsys.readouterr()
-    assert out == r"""
+    if Version(pd.__version__) < Version("3"):
+        assert out == r"""
 basic,fruits=apple\,banana,id=1,name=foo price=0.42 1414747376000000000
 basic,fruits=pear,id=2,name=bar price=0.84 1414747378000000000
+""".lstrip()
+    else:
+        assert out == r"""
+basic,fruits=apple\,banana,id=1,name=foo price=0.42 1414747376000000
+basic,fruits=pear,id=2,name=bar price=0.84 1414747378000000
 """.lstrip()
 
 
@@ -250,9 +258,15 @@ def test_export_api_ilp_file(caplog, capsys, influxdb, provision_influxdb, ilp_u
 
     # Verify records in file have the right shape.
     out = Path(ilp_url_file.path).read_text()
-    assert out == r"""
+    if Version(pd.__version__) < Version("3"):
+        assert out == r"""
 basic,fruits=apple\,banana,id=1,name=foo price=0.42 1414747376000000000
 basic,fruits=pear,id=2,name=bar price=0.84 1414747378000000000
+""".lstrip()
+    else:
+        assert out == r"""
+basic,fruits=apple\,banana,id=1,name=foo price=0.42 1414747376000000
+basic,fruits=pear,id=2,name=bar price=0.84 1414747378000000
 """.lstrip()
 
 
