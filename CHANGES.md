@@ -2,6 +2,8 @@
 
 ## in progress
 
+- Core: Improved resource handling for Dask progress bar
+
 ## 2026-03-21 v0.7.2
 
 - Dependencies: Updated to pandas 3.x

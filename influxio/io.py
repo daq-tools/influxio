@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import os
 import typing as t
@@ -129,11 +130,12 @@ def dataframe_to_sql(
     chunksize = chunksize or 5_000
     npartitions = npartitions or int(os.cpu_count() / 2)
 
+    # Optionally enable progress bar.
+    ctx = contextlib.nullcontext
     if progress:
         from dask.diagnostics import ProgressBar
 
-        pbar = ProgressBar()
-        pbar.register()
+        ctx = ProgressBar
 
     if dburi.startswith("crate"):
 
@@ -148,17 +150,18 @@ def dataframe_to_sql(
         method = "multi"
 
     # Load data into database.
-    if isinstance(df, pl.DataFrame):
-        df = df.to_pandas()
-    ddf = dd.from_pandas(df, npartitions=npartitions)
-    ddf = ddf.drop(columns="measurement", errors="ignore")
-    return ddf.to_sql(
-        tablename,
-        uri=dburi,
-        schema=schema,
-        index=index,
-        chunksize=chunksize,
-        if_exists=if_exists,
-        method=method,
-        parallel=True,
-    )
+    with ctx():
+        if isinstance(df, pl.DataFrame):
+            df = df.to_pandas()
+        ddf = dd.from_pandas(df, npartitions=npartitions)
+        ddf = ddf.drop(columns="measurement", errors="ignore")
+        return ddf.to_sql(
+            tablename,
+            uri=dburi,
+            schema=schema,
+            index=index,
+            chunksize=chunksize,
+            if_exists=if_exists,
+            method=method,
+            parallel=True,
+        )
