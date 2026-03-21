@@ -8,7 +8,7 @@ requires = [
 [project]
 name = "influxio"
 description = "Import and export data into/from InfluxDB"
-readme = "README.rst"
+readme = "README.md"
 keywords = [
   "export",
   "ilp",
@@ -24,7 +24,7 @@ keywords = [
   "timeseries-data",
   "transfer",
 ]
-license = { text = "MIT" }
+license = "MIT"
 authors = [
   { name = "Andreas Motl", email = "andreas.motl@panodata.org" },
   { name = "Richard Pobering", email = "richard.pobering@panodata.org" },
@@ -42,7 +42,6 @@ classifiers = [
   "Intended Audience :: Science/Research",
   "Intended Audience :: System Administrators",
   "Intended Audience :: Telecommunications Industry",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: MacOS :: MacOS X",
   "Operating System :: Microsoft :: Windows",
   "Operating System :: POSIX :: Linux",
