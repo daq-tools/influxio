@@ -89,7 +89,7 @@ dependencies = [
   "influx-line==1.0.0",
   "influxdb-client[ciso]<2",
   "line-protocol-parser<2",
-  "pandas<2.4",
+  "pandas<3.1",
   "polars<2",
   "psycopg2-binary<3",
   "pueblo>=0.0.7",
