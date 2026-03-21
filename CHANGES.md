@@ -2,6 +2,8 @@
 
 ## in progress
 
+## 2026-03-21 v0.7.2
+
 - Dependencies: Updated to pandas 3.x
 
 ## 2026-03-21 v0.7.1
