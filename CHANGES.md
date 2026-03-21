@@ -2,6 +2,8 @@
 
 ## in progress
 
+- Dependencies: Updated to pandas 3.x
+
 ## 2026-03-21 v0.7.1
 
 - OCI: Switched from Debian `bookworm` to `trixie`
