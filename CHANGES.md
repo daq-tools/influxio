@@ -2,6 +2,8 @@
 
 ## in progress
 
+## 2026-03-21 v0.7.3
+
 - Core: Improved resource handling for Dask progress bar
 
 ## 2026-03-21 v0.7.2
