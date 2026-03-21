@@ -29,7 +29,8 @@ def sqlite(sqlite_url) -> SqlAlchemyAdapter:
 def postgresql() -> SqlAlchemyAdapter:
     adapter = SqlAlchemyAdapter.from_url(POSTGRESQL_URL)
     adapter.create_database()
-    adapter.run_sql("DROP TABLE IF EXISTS basic")
+    adapter.run_sql("CREATE SCHEMA IF NOT EXISTS testdrive")
+    adapter.run_sql("DROP TABLE IF EXISTS testdrive.basic")
     return adapter
 
 
@@ -106,12 +107,12 @@ def test_export_cratedb_fail_if_target_exists(caplog, influxdb, provision_influx
     target_url = CRATEDB_URL
 
     # Create a table that will cause the export process to fail.
-    cratedb.run_sql("CREATE TABLE basic (foo INT)")
+    cratedb.run_sql("CREATE TABLE testdrive.basic (foo INT)")
 
     # Transfer data.
     with pytest.raises(ValueError) as ex:
         influxio.core.copy(source_url, target_url)
-    ex.match("Table 'basic' already exists.")
+    assert ex.match("Table 'testdrive.basic' already exists.")
 
 
 def test_export_cratedb_if_exists_unknown(caplog, influxdb, provision_influxdb, cratedb):
@@ -128,7 +129,7 @@ def test_export_cratedb_if_exists_unknown(caplog, influxdb, provision_influxdb, 
     # Transfer data.
     with pytest.raises(ValueError) as ex:
         influxio.core.copy(source_url, target_url)
-    ex.match("'Hotzenplotz' is not valid for if_exists")
+    assert ex.match("'Hotzenplotz' is not valid for if_exists")
 
 
 def test_export_cratedb_if_exists_replace(caplog, influxdb, provision_influxdb, cratedb):
