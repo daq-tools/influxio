@@ -2,6 +2,8 @@
 
 ## in progress
 
+## 2026-03-21 v0.7.1
+
 - OCI: Switched from Debian `bookworm` to `trixie`
 - Improved target address URL decoding around `database`/`schema` option
 
