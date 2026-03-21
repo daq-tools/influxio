@@ -263,7 +263,7 @@ influxio copy \
 
 When targeting the SQLAlchemy database interface, the target table will be
 created automatically, if it does not exist. The `if-exists` URL query
-parameter can be used to configure this behavior. The default value is
+parameter can be used to configure this behaviour. The default value is
 `fail`.
 
 - fail: Raise a ValueError.

@@ -36,7 +36,7 @@ docker run --rm -it --publish=8086:8086 \
     --env=DOCKER_INFLUXDB_INIT_BUCKET=default \
     --env=DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=token \
     --volume="$PWD/var/lib/influxdb2:/var/lib/influxdb2" \
-    influxdb:2.7
+    influxdb:2.8
 ```
 
 - <https://github.com/docker-library/docs/blob/master/influxdb/README.md>
