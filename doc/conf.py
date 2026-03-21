@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "influxio"
-copyright = "2018-2024, The Panodata Developers"
+copyright = "2018-2026, The Panodata Developers"
 author = "The Panodata Developers"
 
 # -- General configuration ---------------------------------------------------
