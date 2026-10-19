@@ -2,6 +2,8 @@
 
 ## in progress
 
+- CI: Validated on Python 3.15
+
 ## 2026-03-21 v0.7.3
 
 - Core: Improved resource handling for Dask progress bar
