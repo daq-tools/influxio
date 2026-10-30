@@ -4,7 +4,7 @@
 # - https://vsupalov.com/buildkit-cache-mount-dockerfile/
 # - https://github.com/FernandoMiguel/Buildkit#mounttypecache
 
-FROM python:3.14-slim-trixie
+FROM python:3.15-slim-trixie
 
 # Enable concurrent multi-arch builds.
 # https://github.com/docker/buildx/issues/549#issuecomment-1788297892
