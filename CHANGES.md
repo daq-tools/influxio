@@ -2,6 +2,8 @@
 
 ## in progress
 
+## 2026-11-04 v0.7.4
+
 - CI: Validated on Python 3.15
 
 ## 2026-03-21 v0.7.3
